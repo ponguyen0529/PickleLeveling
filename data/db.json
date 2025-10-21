@@ -1,0 +1,91 @@
+{
+  "users": [
+    {
+      "id": "0f67da07-eeb2-46a7-9cfc-3fdd0ccaac18",
+      "username": "ponguyen0529",
+      "passwordHash": "$2b$10$i3OccIMNgQLavcARoIXzNuo3a.gNxG1BzCSMPFeRMUVlbBQtKeWNi",
+      "totalXp": 155,
+      "level": 2,
+      "streak": 1,
+      "bestStreak": 1,
+      "lastDailyReset": "2025-10-21",
+      "dailyQuests": {
+        "date": "2025-10-21",
+        "quests": [
+          {
+            "id": "0213a69c-eb65-42f7-95b7-8264651718f5",
+            "templateId": "third-shot-drop",
+            "title": "Third Shot Drop Progression",
+            "description": "Rotate between drop, drive, and lob for three 10-ball sequences.",
+            "focus": "third-shot",
+            "xp": 70,
+            "tags": [
+              "transition",
+              "drills"
+            ],
+            "durationMinutes": 30,
+            "completed": true,
+            "completedAt": "2025-10-21T14:06:01.846Z"
+          },
+          {
+            "id": "39091bc4-20f9-456a-a795-108e93bf773b",
+            "templateId": "match-review",
+            "title": "Match Film Review",
+            "description": "Analyze last match to identify 3 tactical adjustments.",
+            "focus": "strategy",
+            "xp": 45,
+            "tags": [
+              "analysis",
+              "solo"
+            ],
+            "durationMinutes": 20,
+            "completed": true,
+            "completedAt": "2025-10-21T14:06:05.523Z"
+          },
+          {
+            "id": "25dc4d03-c3fd-4d88-a10e-823fb77ba604",
+            "templateId": "footwork-hops",
+            "title": "Kitchen Shuffle & Split-Step",
+            "description": "15 rounds of kitchen line split-steps with recovery backpedal.",
+            "focus": "movement",
+            "xp": 40,
+            "tags": [
+              "agility",
+              "fitness"
+            ],
+            "durationMinutes": 15,
+            "completed": true,
+            "completedAt": "2025-10-21T14:06:07.005Z"
+          }
+        ]
+      },
+      "questHistory": [
+        {
+          "instanceId": "0213a69c-eb65-42f7-95b7-8264651718f5",
+          "templateId": "third-shot-drop",
+          "title": "Third Shot Drop Progression",
+          "xpEarned": 70,
+          "completedAt": "2025-10-21T14:06:01.846Z",
+          "dayKey": "2025-10-21"
+        },
+        {
+          "instanceId": "39091bc4-20f9-456a-a795-108e93bf773b",
+          "templateId": "match-review",
+          "title": "Match Film Review",
+          "xpEarned": 45,
+          "completedAt": "2025-10-21T14:06:05.523Z",
+          "dayKey": "2025-10-21"
+        },
+        {
+          "instanceId": "25dc4d03-c3fd-4d88-a10e-823fb77ba604",
+          "templateId": "footwork-hops",
+          "title": "Kitchen Shuffle & Split-Step",
+          "xpEarned": 40,
+          "completedAt": "2025-10-21T14:06:07.005Z",
+          "dayKey": "2025-10-21"
+        }
+      ],
+      "createdAt": "2025-10-21T14:05:48.566Z"
+    }
+  ]
+}

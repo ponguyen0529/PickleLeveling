@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pickleball Progress Lab</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <h1>Pickleball Progress Lab</h1>
+        <p class="tagline">Daily quests designed to level up your on-court game</p>
+      </div>
+      <button id="logoutBtn" class="ghost-button" hidden>Log out</button>
+    </header>
+
+    <main>
+      <section id="authSection" class="card">
+        <h2>Sign in</h2>
+        <form id="loginForm" class="auth-form">
+          <label>
+            Username
+            <input type="text" name="username" required autocomplete="username" />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" required autocomplete="current-password" />
+          </label>
+          <button type="submit">Log in</button>
+        </form>
+        <div class="divider">or</div>
+        <h3>Create an account</h3>
+        <form id="registerForm" class="auth-form">
+          <label>
+            Username
+            <input type="text" name="username" required autocomplete="username" />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" required autocomplete="new-password" minlength="6" />
+          </label>
+          <button type="submit">Register</button>
+        </form>
+        <p id="authMessage" class="message"></p>
+      </section>
+
+      <section id="dashboardSection" hidden>
+        <div class="grid">
+          <div class="card highlight">
+            <h2 id="playerGreeting"></h2>
+            <div class="progress">
+              <div class="progress-row">
+                <span>Level</span>
+                <span id="playerLevel"></span>
+              </div>
+              <div class="progress-bar">
+                <div id="xpFill"></div>
+              </div>
+              <div class="progress-row small">
+                <span id="xpSummary"></span>
+              </div>
+              <div class="streaks">
+                <span>Daily streak: <strong id="streakValue">0</strong></span>
+                <span>Best streak: <strong id="bestStreakValue">0</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Today&apos;s Quests</h2>
+            <p class="date-label" id="dailyDate"></p>
+            <ul id="questList" class="quest-list"></ul>
+            <p id="questMessage" class="message"></p>
+          </div>
+
+          <div class="card">
+            <h2>Recent Wins</h2>
+            <ul id="historyList" class="history-list"></ul>
+          </div>
+
+          <div class="card">
+            <h2>Club Leaderboard</h2>
+            <ol id="leaderboardList" class="leaderboard"></ol>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <small>Built for players chasing progress one quest at a time.</small>
+    </footer>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
