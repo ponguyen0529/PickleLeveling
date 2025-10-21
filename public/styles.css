@@ -140,16 +140,15 @@ main {
   border-color: var(--sage-600);
 }
 
-.input-group {
-  display: grid;
-  gap: 0.35rem;
-}
-
 label {
   display: grid;
   gap: 0.4rem;
   color: var(--text-muted);
   font-size: 0.95rem;
+}
+
+.input-group {
+  gap: 0.4rem;
 }
 
 input,
@@ -180,10 +179,19 @@ select {
 }
 
 .field-feedback {
-  min-height: 1.1rem;
   font-size: 0.85rem;
-  color: transparent;
-  transition: color 0.2s ease;
+  color: inherit;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+}
+
+.field-feedback.warning,
+.field-feedback.error {
+  max-height: 2.2rem;
+  opacity: 1;
+  margin-top: 0.1rem;
 }
 
 .field-feedback.warning {
