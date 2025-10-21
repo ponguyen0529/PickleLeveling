@@ -511,6 +511,10 @@ footer {
   margin: 0.25rem 0;
 }
 
+.user-dropdown[hidden] {
+  display: none !important;
+}
+
 .user-button .caret {
   display: inline-block;
   transform: rotate(0deg);

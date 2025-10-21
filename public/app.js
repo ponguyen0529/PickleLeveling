@@ -104,18 +104,20 @@ if (registerEmailInput) {
 
 function setUserMenuOpen(open) {
   userMenuOpen = open;
-  if (!userMenuDropdown || !userMenuButton) {
+  if (!userMenuDropdown || !userMenuButton || !userMenu) {
     return;
   }
-  userMenuDropdown.hidden = !open;
-  userMenuButton.setAttribute("aria-expanded", open ? "true" : "false");
-  if (userMenu) {
-    if (open) {
-      userMenu.classList.add("open");
-    } else {
-      userMenu.classList.remove("open");
-    }
+
+  if (open) {
+    userMenuDropdown.hidden = false;
+    userMenuDropdown.setAttribute("aria-hidden", "false");
+  } else {
+    userMenuDropdown.hidden = true;
+    userMenuDropdown.setAttribute("aria-hidden", "true");
   }
+
+  userMenuButton.setAttribute("aria-expanded", open ? "true" : "false");
+  userMenu.classList.toggle("open", open);
 }
 
 function closeUserMenu() {
