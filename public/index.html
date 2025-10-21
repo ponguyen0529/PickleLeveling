@@ -17,31 +17,50 @@
 
     <main>
       <section id="authSection" class="card">
-        <h2>Sign in</h2>
-        <form id="loginForm" class="auth-form">
-          <label>
-            Username
-            <input type="text" name="username" required autocomplete="username" />
-          </label>
-          <label>
-            Password
-            <input type="password" name="password" required autocomplete="current-password" />
-          </label>
-          <button type="submit">Log in</button>
-        </form>
-        <div class="divider">or</div>
-        <h3>Create an account</h3>
-        <form id="registerForm" class="auth-form">
-          <label>
-            Username
-            <input type="text" name="username" required autocomplete="username" />
-          </label>
-          <label>
-            Password
-            <input type="password" name="password" required autocomplete="new-password" minlength="6" />
-          </label>
-          <button type="submit">Register</button>
-        </form>
+        <div id="loginView">
+          <h2>Sign in</h2>
+          <form id="loginForm" class="auth-form">
+            <label>
+              Username
+              <input type="text" name="username" required autocomplete="username" />
+            </label>
+            <label>
+              Password
+              <input type="password" name="password" required autocomplete="current-password" />
+            </label>
+            <button type="submit">Log in</button>
+          </form>
+          <p class="auth-toggle">
+            New here?
+            <a href="#" id="showRegister">Create an account</a>
+          </p>
+        </div>
+
+        <div id="registerView" hidden>
+          <h2>Create an account</h2>
+          <form id="registerForm" class="auth-form">
+            <label>
+              Username
+              <input type="text" name="username" required autocomplete="username" />
+            </label>
+            <label>
+              Password
+              <input
+                type="password"
+                name="password"
+                required
+                autocomplete="new-password"
+                minlength="6"
+              />
+            </label>
+            <button type="submit">Sign up</button>
+          </form>
+          <p class="auth-toggle">
+            Already have an account?
+            <a href="#" id="showLogin">Sign in</a>
+          </p>
+        </div>
+
         <p id="authMessage" class="message"></p>
       </section>
 

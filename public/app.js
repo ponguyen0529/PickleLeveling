@@ -7,6 +7,10 @@ const state = {
 
 const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
+const loginView = document.getElementById("loginView");
+const registerView = document.getElementById("registerView");
+const showRegisterLink = document.getElementById("showRegister");
+const showLoginLink = document.getElementById("showLogin");
 const authSection = document.getElementById("authSection");
 const dashboardSection = document.getElementById("dashboardSection");
 const authMessage = document.getElementById("authMessage");
@@ -23,6 +27,17 @@ const questListEl = document.getElementById("questList");
 const questMessageEl = document.getElementById("questMessage");
 const historyListEl = document.getElementById("historyList");
 const leaderboardListEl = document.getElementById("leaderboardList");
+
+function setAuthMode(mode) {
+  if (mode === "register") {
+    loginView.hidden = true;
+    registerView.hidden = false;
+  } else {
+    loginView.hidden = false;
+    registerView.hidden = true;
+  }
+  authMessage.textContent = "";
+}
 
 async function request(url, options = {}) {
   const opts = {
@@ -243,6 +258,7 @@ logoutBtn.addEventListener("click", async () => {
     dashboardSection.hidden = true;
     authSection.hidden = false;
     logoutBtn.hidden = true;
+    setAuthMode("login");
   }
 });
 
@@ -259,10 +275,23 @@ async function initialize() {
     if (response.authenticated) {
       state.user = response.user;
       await showDashboard();
+      return;
     }
   } catch (error) {
     console.warn("Unable to auto-login:", error.message);
   }
+
+  setAuthMode("login");
 }
+
+showRegisterLink.addEventListener("click", (event) => {
+  event.preventDefault();
+  setAuthMode("register");
+});
+
+showLoginLink.addEventListener("click", (event) => {
+  event.preventDefault();
+  setAuthMode("login");
+});
 
 initialize();
