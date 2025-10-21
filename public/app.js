@@ -129,7 +129,6 @@ function toggleUserMenu() {
 if (userMenuButton) {
   userMenuButton.addEventListener("click", (event) => {
     event.preventDefault();
-    event.stopPropagation();
     toggleUserMenu();
   });
   userMenuButton.addEventListener("keydown", (event) => {
@@ -143,7 +142,6 @@ if (userMenuButton) {
 if (profileMenuItem) {
   profileMenuItem.addEventListener("click", (event) => {
     event.preventDefault();
-    event.stopPropagation();
     closeUserMenu();
     if (questMessageEl) {
       questMessageEl.textContent = "Profile editing is coming soon.";
@@ -154,10 +152,21 @@ if (profileMenuItem) {
 if (settingsMenuItem) {
   settingsMenuItem.addEventListener("click", (event) => {
     event.preventDefault();
-    event.stopPropagation();
     closeUserMenu();
     if (questMessageEl) {
       questMessageEl.textContent = "Settings customization is on the roadmap.";
+    }
+  });
+}
+
+if (userMenuDropdown) {
+  userMenuDropdown.addEventListener("click", (event) => {
+    const item = event.target.closest(".dropdown-item");
+    if (!item) {
+      return;
+    }
+    if (item !== logoutButton) {
+      closeUserMenu();
     }
   });
 }
@@ -428,11 +437,10 @@ registerForm.addEventListener("submit", async (event) => {
 if (logoutButton) {
   logoutButton.addEventListener("click", async (event) => {
     event.preventDefault();
-    event.stopPropagation();
+    closeUserMenu();
     try {
       await request("/api/auth/logout", { method: "POST" });
     } finally {
-      closeUserMenu();
       state.user = null;
       state.daily = null;
       state.history = [];
