@@ -83,6 +83,11 @@ async function findUser(username) {
 }
 
 const VALID_GENDERS = new Set(["female", "male", "nonbinary", "prefer_not"]);
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isValidEmail(email) {
+  return EMAIL_REGEX.test(email);
+}
 
 async function register({ username, password, email, gender }) {
   const trimmedUsername = typeof username === "string" ? username.trim() : "";
@@ -99,6 +104,9 @@ async function register({ username, password, email, gender }) {
     typeof email === "string" ? email.trim().toLowerCase() : "";
   if (!normalizedEmail) {
     throw new Error("Email is required.");
+  }
+  if (!isValidEmail(normalizedEmail)) {
+    throw new Error("Enter a valid email address.");
   }
   if (!gender || !VALID_GENDERS.has(gender)) {
     throw new Error("Please select a valid gender option.");

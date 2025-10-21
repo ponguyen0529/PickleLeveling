@@ -65,7 +65,13 @@
             </label>
             <label>
               Email
-              <input type="email" name="email" required autocomplete="email" />
+              <input
+                type="email"
+                name="email"
+                required
+                autocomplete="email"
+                pattern="^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+              />
             </label>
             <label>
               Gender

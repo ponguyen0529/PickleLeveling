@@ -28,6 +28,10 @@ const questMessageEl = document.getElementById("questMessage");
 const historyListEl = document.getElementById("historyList");
 const leaderboardListEl = document.getElementById("leaderboardList");
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 function setAuthMode(mode) {
   if (mode === "register") {
     loginView.hidden = true;
@@ -248,6 +252,11 @@ registerForm.addEventListener("submit", async (event) => {
 
   if (!email) {
     authMessage.textContent = "Email is required.";
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    authMessage.textContent = "Enter a valid email address.";
     return;
   }
 
