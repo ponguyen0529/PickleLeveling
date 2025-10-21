@@ -140,6 +140,11 @@ main {
   border-color: var(--sage-600);
 }
 
+.input-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
 label {
   display: grid;
   gap: 0.4rem;
@@ -172,6 +177,21 @@ select {
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
   cursor: pointer;
+}
+
+.field-feedback {
+  min-height: 1.1rem;
+  font-size: 0.85rem;
+  color: transparent;
+  transition: color 0.2s ease;
+}
+
+.field-feedback.warning {
+  color: #b08932;
+}
+
+.field-feedback.error {
+  color: #c04646;
 }
 
 button {

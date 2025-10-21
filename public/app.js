@@ -27,6 +27,41 @@ const questListEl = document.getElementById("questList");
 const questMessageEl = document.getElementById("questMessage");
 const historyListEl = document.getElementById("historyList");
 const leaderboardListEl = document.getElementById("leaderboardList");
+const registerEmailInput = registerForm?.elements?.email;
+const emailFeedbackEl = document.getElementById("emailFeedback");
+let emailTouched = false;
+
+function setEmailFeedback(type, message) {
+  if (!emailFeedbackEl) {
+    return;
+  }
+  emailFeedbackEl.textContent = message || "";
+  emailFeedbackEl.className = "field-feedback";
+  if (type && message) {
+    emailFeedbackEl.classList.add(type);
+  }
+}
+
+function validateEmailField(showEmptyWarning = false) {
+  if (!registerEmailInput) {
+    return true;
+  }
+  const value = registerEmailInput.value.trim();
+  if (!value) {
+    if (showEmptyWarning) {
+      setEmailFeedback("warning", "Email is required.");
+    } else {
+      setEmailFeedback("", "");
+    }
+    return false;
+  }
+  if (!isValidEmail(value)) {
+    setEmailFeedback("error", "Enter a valid email address.");
+    return false;
+  }
+  setEmailFeedback("", "");
+  return true;
+}
 
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -41,6 +76,22 @@ function setAuthMode(mode) {
     registerView.hidden = true;
   }
   authMessage.textContent = "";
+  emailTouched = false;
+  setEmailFeedback("", "");
+}
+
+if (registerEmailInput) {
+  registerEmailInput.addEventListener("input", () => {
+    if (!emailTouched && registerEmailInput.value.trim().length > 0) {
+      emailTouched = true;
+    }
+    validateEmailField(emailTouched);
+  });
+
+  registerEmailInput.addEventListener("blur", () => {
+    emailTouched = true;
+    validateEmailField(true);
+  });
 }
 
 async function request(url, options = {}) {
@@ -250,13 +301,9 @@ registerForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  if (!email) {
-    authMessage.textContent = "Email is required.";
-    return;
-  }
-
-  if (!isValidEmail(email)) {
-    authMessage.textContent = "Enter a valid email address.";
+  emailTouched = true;
+  if (!validateEmailField(true)) {
+    authMessage.textContent = "";
     return;
   }
 
@@ -280,6 +327,8 @@ registerForm.addEventListener("submit", async (event) => {
       }
     });
     registerForm.reset();
+    emailTouched = false;
+    setEmailFeedback("", "");
     setAuthMode("login");
     authMessage.textContent = "Account created! You're logged in.";
     await showDashboard();
