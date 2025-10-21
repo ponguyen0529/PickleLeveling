@@ -131,7 +131,7 @@ app.post("/api/quiz/estimate", requireAuth, async (req, res) => {
     const result = await quizService.saveRating(req.session.userId, answers);
     const profile = await userService.getProfile(req.session.userId);
     res.json({
-      rating: result.rating,
+      result,
       user: profile
     });
   } catch (error) {

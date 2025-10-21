@@ -91,8 +91,8 @@
       "id": "dc06ac61-b110-416b-b76b-a4b4adb40d12",
       "username": "test1123",
       "passwordHash": "$2b$10$yse4HLXawpVn75k73kozuOuRJjPJrYIWJ8RV9LfS6FYzOma0pADiy",
-      "totalXp": 0,
-      "level": 1,
+      "totalXp": 135,
+      "level": 2,
       "streak": 1,
       "bestStreak": 1,
       "lastDailyReset": "2025-10-21",
@@ -111,7 +111,8 @@
               "fitness"
             ],
             "durationMinutes": 15,
-            "completed": false
+            "completed": true,
+            "completedAt": "2025-10-21T18:55:47.037Z"
           },
           {
             "id": "f5b4a0ea-3206-4a92-b444-0fdb9768c107",
@@ -125,7 +126,8 @@
               "solo"
             ],
             "durationMinutes": 20,
-            "completed": false
+            "completed": true,
+            "completedAt": "2025-10-21T18:55:48.419Z"
           },
           {
             "id": "ff99d1d8-cac8-403a-9bea-92959fcc7a45",
@@ -139,12 +141,60 @@
               "solo"
             ],
             "durationMinutes": 20,
-            "completed": false
+            "completed": true,
+            "completedAt": "2025-10-21T18:55:51.463Z"
           }
         ]
       },
-      "questHistory": [],
-      "createdAt": "2025-10-21T14:38:57.708Z"
+      "questHistory": [
+        {
+          "instanceId": "7f7b35db-274c-4280-b3b4-669892960e5f",
+          "templateId": "footwork-hops",
+          "title": "Kitchen Shuffle & Split-Step",
+          "xpEarned": 40,
+          "completedAt": "2025-10-21T18:55:47.037Z",
+          "dayKey": "2025-10-21"
+        },
+        {
+          "instanceId": "f5b4a0ea-3206-4a92-b444-0fdb9768c107",
+          "templateId": "serve-basics",
+          "title": "Serve 30 balls",
+          "xpEarned": 50,
+          "completedAt": "2025-10-21T18:55:48.419Z",
+          "dayKey": "2025-10-21"
+        },
+        {
+          "instanceId": "ff99d1d8-cac8-403a-9bea-92959fcc7a45",
+          "templateId": "match-review",
+          "title": "Match Film Review",
+          "xpEarned": 45,
+          "completedAt": "2025-10-21T18:55:51.463Z",
+          "dayKey": "2025-10-21"
+        }
+      ],
+      "createdAt": "2025-10-21T14:38:57.708Z",
+      "estimatedRating": {
+        "score": 74.8,
+        "rating": "4.6",
+        "confidence": 0.85,
+        "confidenceLabel": "Moderate",
+        "bandLabel": "Competitive Advanced",
+        "domainScores": {
+          "rules": 0.7,
+          "technique": 0.79,
+          "tactics": 0.67,
+          "mental": 0.9,
+          "physical": 0.7
+        },
+        "explanations": [
+          "Estimated rating 4.6 (Competitive Advanced) with moderate confidence.",
+          "Solid balance across domains. Continue refining patterns under match pressure."
+        ],
+        "tips": [
+          "Increase quiz confidence by answering steadily and reviewing rule scenarios."
+        ],
+        "updatedAt": "2025-10-21T18:47:16.991Z"
+      }
     }
   ]
 }

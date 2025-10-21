@@ -1,15 +1,69 @@
 const dataStore = require("../dataStore");
 const quizQuestions = require("../quizQuestions");
+const {
+  compositeScore,
+  confidenceScore,
+  mapToDecimalRating,
+  labelFromRating
+} = require("./quizEngine");
+
+const questionMap = new Map(quizQuestions.map((question) => [question.id, question]));
+
+function sanitizeQuestion(question) {
+  const base = {
+    id: question.id,
+    domain: question.domain,
+    type: question.type,
+    prompt: question.prompt,
+    difficulty: question.difficulty,
+    tags: question.tags || []
+  };
+
+  if (question.type === "mcq" || question.type === "scenario") {
+    return {
+      ...base,
+      choices: question.options.map((label, index) => ({
+        value: String(index),
+        label
+      }))
+    };
+  }
+
+  if (question.type === "percent_bucket") {
+    return {
+      ...base,
+      choices: question.buckets.map((bucket) => ({
+        value: bucket,
+        label: `${bucket}%`
+      }))
+    };
+  }
+
+  if (question.type === "likert") {
+    const labels = [
+      "1 - Strongly disagree",
+      "2 - Disagree",
+      "3 - Neutral",
+      "4 - Agree",
+      "5 - Strongly agree"
+    ];
+    return {
+      ...base,
+      choices: labels.map((label, idx) => ({
+        value: String(idx + 1),
+        label
+      })),
+      meta: {
+        reverse: !!question.reverse
+      }
+    };
+  }
+
+  return base;
+}
 
 function getQuestions() {
-  return quizQuestions.map((question) => ({
-    id: question.id,
-    prompt: question.prompt,
-    options: question.options.map(({ id, label }) => ({
-      id,
-      label
-    }))
-  }));
+  return quizQuestions.map(sanitizeQuestion);
 }
 
 function normalizeAnswers(answers) {
@@ -19,72 +73,84 @@ function normalizeAnswers(answers) {
   return answers
     .map((entry) => ({
       questionId: entry?.questionId,
-      optionId: entry?.optionId
+      value: entry?.value,
+      timeMs: typeof entry?.timeMs === "number" ? entry.timeMs : undefined
     }))
-    .filter((entry) => entry.questionId && entry.optionId);
+    .filter((entry) => entry.questionId && entry.value !== undefined && entry.value !== null);
 }
 
-function lookupScore(questionId, optionId) {
-  const question = quizQuestions.find((item) => item.id === questionId);
-  if (!question) {
-    return null;
+function parseResponse(question, rawValue) {
+  switch (question.type) {
+    case "mcq":
+    case "scenario": {
+      const parsed = Number(rawValue);
+      return Number.isNaN(parsed) ? rawValue : parsed;
+    }
+    case "likert": {
+      const parsed = Number(rawValue);
+      return Number.isNaN(parsed) ? 3 : parsed;
+    }
+    case "percent_bucket":
+    default:
+      return String(rawValue);
   }
-  const option = question.options.find((item) => item.id === optionId);
-  if (!option) {
-    return null;
-  }
-  return option.score;
 }
 
-function determineRating(avgScore) {
-  const bands = [
-    {
-      threshold: 1.75,
-      value: 2.0,
-      label: "Newcomer (2.0)",
-      guidance: "Keep building core skills: serves, returns, and consistent dinks."
-    },
-    {
-      threshold: 2.25,
-      value: 2.5,
-      label: "Developing Player (2.5)",
-      guidance: "You're rallying more often - focus on footwork and resetting balls."
-    },
-    {
-      threshold: 2.75,
-      value: 3.0,
-      label: "Intermediate (3.0)",
-      guidance: "You can sustain kitchen exchanges. Sharpen transition play next."
-    },
-    {
-      threshold: 3.25,
-      value: 3.5,
-      label: "Advanced Intermediate (3.5)",
-      guidance: "You mix drops, drives, and attacks - look for smarter pattern builds."
-    },
-    {
-      threshold: 3.75,
-      value: 4.0,
-      label: "Competitive (4.0)",
-      guidance: "Your all-court game is a threat. Dial in situational decision-making."
-    }
-  ];
+function confidenceLabel(value) {
+  if (value >= 0.85) return "High";
+  if (value >= 0.65) return "Moderate";
+  return "Low";
+}
 
-  for (const band of bands) {
-    if (avgScore < band.threshold) {
-      return {
-        value: band.value,
-        label: band.label,
-        guidance: band.guidance
-      };
+function buildExplanations(result) {
+  const messages = [];
+  messages.push(
+    `Estimated rating ${result.rating} (${result.bandLabel}) with ${result.confidenceLabel.toLowerCase()} confidence.`
+  );
+
+  const weakDomains = Object.entries(result.domainScores)
+    .filter(([, score]) => score < 0.55)
+    .sort((a, b) => a[1] - b[1]);
+
+  weakDomains.forEach(([domain]) => {
+    messages.push(`Focus on ${domainName(domain)} - bring the score above 70% with targeted reps.`);
+  });
+
+  if (weakDomains.length === 0) {
+    messages.push("Solid balance across domains. Continue refining patterns under match pressure.");
+  }
+
+  return messages;
+}
+
+function buildTips(result) {
+  const tips = [];
+  const sortedDomains = Object.entries(result.domainScores).sort((a, b) => a[1] - b[1]);
+  const lowest = sortedDomains[0];
+
+  if (lowest) {
+    const [domain, score] = lowest;
+    if (score < 0.6) {
+      tips.push(`Targeted practice: dedicate a session this week to ${domainName(domain)} reps.`);
     }
   }
 
-  return {
-    value: 4.5,
-    label: "Tournament Ready (4.5)",
-    guidance: "You're ready for high-level play. Fine-tune shot selection and scouting."
+  if (result.confidenceLabel !== "High") {
+    tips.push("Increase quiz confidence by answering steadily and reviewing rule scenarios.");
+  }
+
+  return tips;
+}
+
+function domainName(id) {
+  const mapping = {
+    rules: "Rules & Awareness",
+    technique: "Technique & Execution",
+    tactics: "Tactics & Patterns",
+    mental: "Mental Game",
+    physical: "Physical Readiness"
   };
+  return mapping[id] || id;
 }
 
 async function saveRating(userId, answers) {
@@ -93,23 +159,46 @@ async function saveRating(userId, answers) {
     throw new Error("No answers provided.");
   }
 
-  let totalScore = 0;
-  let counted = 0;
-
-  normalized.forEach(({ questionId, optionId }) => {
-    const score = lookupScore(questionId, optionId);
-    if (typeof score === "number") {
-      totalScore += score;
-      counted += 1;
+  const items = [];
+  normalized.forEach((entry) => {
+    const question = questionMap.get(entry.questionId);
+    if (!question) {
+      return;
     }
+    const response = parseResponse(question, entry.value);
+    items.push({
+      q: question,
+      response,
+      timeMs: entry.timeMs
+    });
   });
 
-  if (counted === 0) {
+  if (items.length === 0) {
     throw new Error("Answers could not be scored.");
   }
 
-  const avg = totalScore / counted;
-  const rating = determineRating(avg);
+  const { final, domainScores } = compositeScore(items);
+  const rating = mapToDecimalRating(final);
+  const confidence = confidenceScore(items, domainScores);
+  const confidenceLabelValue = confidenceLabel(confidence);
+  const bandLabel = labelFromRating(rating);
+
+  const result = {
+    score: Number(final.toFixed(1)),
+    rating,
+    confidence: Number(confidence.toFixed(2)),
+    confidenceLabel: confidenceLabelValue,
+    bandLabel,
+    domainScores: Object.fromEntries(
+      Object.entries(domainScores).map(([domain, score]) => [domain, Number(score.toFixed(2))])
+    ),
+    explanations: [],
+    tips: [],
+    updatedAt: new Date().toISOString()
+  };
+
+  result.explanations = buildExplanations(result);
+  result.tips = buildTips(result);
 
   const data = await dataStore.read();
   const user = data.users.find((entry) => entry.id === userId);
@@ -118,19 +207,20 @@ async function saveRating(userId, answers) {
   }
 
   user.estimatedRating = {
-    value: rating.value,
-    label: rating.label,
-    guidance: rating.guidance,
-    averagedScore: Number(avg.toFixed(2)),
-    answeredAt: new Date().toISOString(),
-    answerCount: counted
+    score: result.score,
+    rating: result.rating,
+    confidence: result.confidence,
+    confidenceLabel: result.confidenceLabel,
+    bandLabel: result.bandLabel,
+    domainScores: result.domainScores,
+    explanations: result.explanations,
+    tips: result.tips,
+    updatedAt: result.updatedAt
   };
 
   await dataStore.write(data);
 
-  return {
-    rating: user.estimatedRating
-  };
+  return result;
 }
 
 module.exports = {

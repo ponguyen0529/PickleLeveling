@@ -8,7 +8,9 @@ const state = {
     active: false,
     currentIndex: 0,
     answers: {},
-    submitting: false
+    submitting: false,
+    order: [],
+    total: 0
   }
 };
 
@@ -51,6 +53,10 @@ const quizBackButton = document.getElementById("quizBackButton");
 const quizNextButton = document.getElementById("quizNextButton");
 const quizResultEl = document.getElementById("quizResult");
 const quizRatingValueEl = document.getElementById("quizRatingValue");
+const quizScoreTextEl = document.getElementById("quizScoreText");
+const quizConfidenceTextEl = document.getElementById("quizConfidenceText");
+const quizDomainListEl = document.getElementById("quizDomainList");
+const quizExplanationListEl = document.getElementById("quizExplanationList");
 const quizRatingGuidanceEl = document.getElementById("quizRatingGuidance");
 const retakeQuizButton = document.getElementById("retakeQuizButton");
 const registerEmailInput = registerForm?.elements?.email;
@@ -161,7 +167,9 @@ function resetQuizState() {
     active: false,
     currentIndex: 0,
     answers: {},
-    submitting: false
+    submitting: false,
+    order: [],
+    total: 0
   };
   if (quizMessageEl) {
     quizMessageEl.textContent = "";
@@ -175,6 +183,93 @@ function resetQuizState() {
   if (quizProgressEl) {
     quizProgressEl.textContent = "";
   }
+  if (quizContainer) {
+    quizContainer.hidden = true;
+  }
+  if (quizBackButton) {
+    quizBackButton.disabled = false;
+  }
+  if (quizNextButton) {
+    quizNextButton.disabled = false;
+    quizNextButton.textContent = "Next";
+  }
+}
+
+const DOMAIN_LABELS = {
+  rules: "Rules & Awareness",
+  technique: "Technique & Execution",
+  tactics: "Tactics & Patterns",
+  mental: "Mental Game",
+  physical: "Physical Readiness"
+};
+
+const QUIZ_DOMAIN_ORDER = ["rules", "technique", "tactics", "mental", "physical"];
+
+function domainLabel(id) {
+  return DOMAIN_LABELS[id] || id;
+}
+
+function shuffle(array) {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function selectQuizOrder() {
+  const pool = state.quizQuestions || [];
+  if (!pool.length) {
+    return [];
+  }
+
+  const targetCounts = {
+    rules: 3,
+    technique: 4,
+    tactics: 3,
+    mental: 2,
+    physical: 2
+  };
+
+  const grouped = pool.reduce((acc, question) => {
+    if (!acc[question.domain]) {
+      acc[question.domain] = [];
+    }
+    acc[question.domain].push(question);
+    return acc;
+  }, {});
+
+  const order = [];
+  Object.entries(targetCounts).forEach(([domain, target]) => {
+    const candidates = shuffle(grouped[domain] || []);
+    for (let i = 0; i < target && candidates.length; i += 1) {
+      const next = candidates.shift();
+      if (next) {
+        order.push(next);
+      }
+    }
+  });
+
+  const usedIds = new Set(order.map((item) => item.id));
+  const totalTarget = Math.min(14, pool.length);
+  if (order.length < totalTarget) {
+    const leftovers = shuffle(pool.filter((question) => !usedIds.has(question.id)));
+    while (order.length < totalTarget && leftovers.length) {
+      const next = leftovers.shift();
+      if (next) {
+        order.push(next);
+      }
+    }
+  }
+
+  return order;
+}
+
+function confidenceDescriptor(value) {
+  if (value >= 0.85) return "High";
+  if (value >= 0.65) return "Moderate";
+  return "Low";
 }
 
 function updateRatingSection() {
@@ -187,6 +282,7 @@ function updateRatingSection() {
     ratingSummaryEl.textContent = "Answer a few questions to estimate your rating.";
     if (startQuizButton) {
       startQuizButton.hidden = true;
+      startQuizButton.disabled = true;
     }
     if (quizContainer) {
       quizContainer.hidden = false;
@@ -204,35 +300,100 @@ function updateRatingSection() {
     quizContainer.hidden = true;
   }
 
-  if (rating) {
-    ratingSummaryEl.textContent = `Your estimated rating: ${rating.label}`;
-    if (quizRatingValueEl) {
-      quizRatingValueEl.textContent = rating.label;
-    }
-    if (quizRatingGuidanceEl) {
-      quizRatingGuidanceEl.textContent = rating.guidance;
-    }
-    if (quizResultEl) {
-      quizResultEl.hidden = false;
-    }
-    if (retakeQuizButton) {
-      retakeQuizButton.hidden = false;
-    }
-    if (startQuizButton) {
-      startQuizButton.hidden = true;
-    }
-  } else {
+  if (!rating) {
     ratingSummaryEl.textContent = "Don't know your rating? Let's estimate it together.";
+    if (startQuizButton) {
+      startQuizButton.hidden = false;
+      startQuizButton.disabled = false;
+      startQuizButton.textContent = "Start rating quiz";
+    }
     if (quizResultEl) {
       quizResultEl.hidden = true;
     }
     if (retakeQuizButton) {
       retakeQuizButton.hidden = true;
     }
-    if (startQuizButton) {
-      startQuizButton.hidden = false;
-      startQuizButton.textContent = "Start rating quiz";
+    if (quizRatingValueEl) {
+      quizRatingValueEl.textContent = "";
     }
+    if (quizScoreTextEl) {
+      quizScoreTextEl.textContent = "";
+    }
+    if (quizConfidenceTextEl) {
+      quizConfidenceTextEl.textContent = "";
+    }
+    if (quizDomainListEl) {
+      quizDomainListEl.innerHTML = "";
+    }
+    if (quizExplanationListEl) {
+      quizExplanationListEl.innerHTML = "";
+    }
+    if (quizRatingGuidanceEl) {
+      quizRatingGuidanceEl.textContent = "";
+    }
+    return;
+  }
+
+  const confidencePct = Math.round((rating.confidence ?? 0) * 100);
+  const confidenceLabelValue = rating.confidenceLabel || confidenceDescriptor(rating.confidence ?? 0);
+  const summary =
+    (rating.explanations && rating.explanations[0]) ||
+    `Estimated rating ${rating.rating} (${rating.bandLabel}).`;
+
+  ratingSummaryEl.textContent = summary;
+
+  if (quizRatingValueEl) {
+    quizRatingValueEl.textContent = `Rating ${rating.rating} • ${rating.bandLabel}`;
+  }
+  if (quizScoreTextEl && typeof rating.score === "number") {
+    quizScoreTextEl.textContent = `Composite score: ${rating.score.toFixed(1)} / 100`;
+  }
+  if (quizConfidenceTextEl) {
+    quizConfidenceTextEl.textContent = `Confidence: ${confidencePct}% (${confidenceLabelValue})`;
+  }
+  if (quizDomainListEl) {
+    quizDomainListEl.innerHTML = "";
+    const domainEntries = QUIZ_DOMAIN_ORDER.map((domain) => [
+      domain,
+      rating.domainScores?.[domain] ?? 0
+    ]);
+    domainEntries.forEach(([domain, score]) => {
+      const item = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = domainLabel(domain);
+      const value = document.createElement("strong");
+      value.textContent = `${Math.round(score * 100)}%`;
+      item.append(label, value);
+      quizDomainListEl.appendChild(item);
+    });
+  }
+  if (quizExplanationListEl) {
+    quizExplanationListEl.innerHTML = "";
+    const extraExplanations = (rating.explanations || []).slice(1);
+    const guidanceItems = [...extraExplanations, ...(rating.tips || [])];
+    guidanceItems.forEach((text) => {
+      if (!text) {
+        return;
+      }
+      const li = document.createElement("li");
+      li.textContent = text;
+      quizExplanationListEl.appendChild(li);
+    });
+  }
+  if (quizRatingGuidanceEl) {
+    quizRatingGuidanceEl.textContent = rating.tips?.[0] || "";
+  }
+  if (quizResultEl) {
+    quizResultEl.hidden = false;
+  }
+  if (retakeQuizButton) {
+    retakeQuizButton.hidden = false;
+    retakeQuizButton.disabled = false;
+  }
+  if (startQuizButton) {
+    startQuizButton.hidden = false;
+    startQuizButton.disabled = false;
+    startQuizButton.textContent = "Retake rating quiz";
   }
 }
 
@@ -241,11 +402,15 @@ function renderQuizQuestion() {
     return;
   }
 
-  const questions = state.quizQuestions || [];
-  if (questions.length === 0) {
+  const questions = state.quiz.order || [];
+  const total = state.quiz.total || questions.length;
+
+  if (!questions.length) {
     if (quizMessageEl) {
-      quizMessageEl.textContent = "Questions are still loading. Please try again.";
+      quizMessageEl.textContent = "Quiz questions are unavailable. Please try again later.";
     }
+    resetQuizState();
+    updateRatingSection();
     return;
   }
 
@@ -259,7 +424,9 @@ function renderQuizQuestion() {
     quizMessageEl.textContent = "";
   }
   if (quizProgressEl) {
-    quizProgressEl.textContent = `Question ${state.quiz.currentIndex + 1} of ${questions.length}`;
+    const questionNumber = state.quiz.currentIndex + 1;
+    const domainText = domainLabel(currentQuestion.domain);
+    quizProgressEl.textContent = `Question ${questionNumber} of ${total} - ${domainText}`;
   }
   if (quizPromptEl) {
     quizPromptEl.textContent = currentQuestion.prompt;
@@ -267,12 +434,15 @@ function renderQuizQuestion() {
 
   if (quizOptionsEl) {
     quizOptionsEl.innerHTML = "";
-    currentQuestion.options.forEach((option) => {
+    const choices =
+      currentQuestion.choices || (currentQuestion.options || []).map((label, idx) => ({ value: String(idx), label }));
+
+    choices.forEach((choice) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "quiz-option";
-      button.textContent = option.label;
-      if (state.quiz.answers[currentQuestion.id] === option.id) {
+      button.textContent = choice.label;
+      if (state.quiz.answers[currentQuestion.id] === choice.value) {
         button.classList.add("selected");
       }
       button.addEventListener("click", () => {
@@ -281,21 +451,21 @@ function renderQuizQuestion() {
         }
         state.quiz.answers = {
           ...state.quiz.answers,
-          [currentQuestion.id]: option.id
+          [currentQuestion.id]: choice.value
         };
         renderQuizQuestion();
       });
       quizOptionsEl.appendChild(button);
     });
   }
-
   if (quizBackButton) {
-    quizBackButton.disabled = state.quiz.currentIndex === 0 || state.quiz.submitting;
+    quizBackButton.disabled = state.quiz.submitting;
+    quizBackButton.textContent = state.quiz.currentIndex === 0 ? "Cancel" : "Back";
   }
   if (quizNextButton) {
     quizNextButton.disabled = state.quiz.submitting;
     quizNextButton.textContent =
-      state.quiz.currentIndex === questions.length - 1 ? "Submit" : "Next";
+      state.quiz.currentIndex === total - 1 ? "Submit" : "Next";
   }
 }
 
@@ -316,13 +486,13 @@ async function submitQuiz() {
   if (state.quiz.submitting) {
     return;
   }
-  const questions = state.quizQuestions || [];
+  const questions = state.quiz.order || [];
   const answers = questions
     .map((question) => ({
       questionId: question.id,
-      optionId: state.quiz.answers[question.id]
+      value: state.quiz.answers[question.id]
     }))
-    .filter((entry) => entry.optionId);
+    .filter((entry) => entry.value !== undefined && entry.value !== null);
 
   if (answers.length !== questions.length) {
     if (quizMessageEl) {
@@ -350,6 +520,9 @@ async function submitQuiz() {
       }
     });
     state.user = response.user;
+    if (response.result) {
+      state.user.estimatedRating = response.result;
+    }
     state.quiz.submitting = false;
     resetQuizState();
     updateRatingSection();
@@ -359,6 +532,12 @@ async function submitQuiz() {
     if (quizMessageEl) {
       quizMessageEl.textContent = error.message;
     }
+    if (quizBackButton) {
+      quizBackButton.disabled = false;
+    }
+    if (quizNextButton) {
+      quizNextButton.disabled = false;
+    }
     renderQuizQuestion();
   }
 }
@@ -367,7 +546,8 @@ function handleQuizNext() {
   if (!state.quiz.active || state.quiz.submitting) {
     return;
   }
-  const questions = state.quizQuestions || [];
+  const questions = state.quiz.order || [];
+  const total = state.quiz.total || questions.length;
   const currentQuestion = questions[state.quiz.currentIndex];
   if (!currentQuestion) {
     return;
@@ -378,7 +558,7 @@ function handleQuizNext() {
     }
     return;
   }
-  if (state.quiz.currentIndex === questions.length - 1) {
+  if (state.quiz.currentIndex === total - 1) {
     submitQuiz();
   } else {
     state.quiz.currentIndex += 1;
@@ -396,14 +576,39 @@ async function startQuiz() {
     return;
   }
 
+  const order = selectQuizOrder();
+  if (order.length === 0) {
+    if (quizMessageEl) {
+      quizMessageEl.textContent = "Quiz questions are unavailable. Please try again later.";
+    }
+    if (startQuizButton) {
+      startQuizButton.hidden = false;
+      startQuizButton.disabled = false;
+    }
+    return;
+  }
+
   state.quiz = {
     active: true,
     currentIndex: 0,
     answers: {},
-    submitting: false
+    submitting: false,
+    order,
+    total: order.length
   };
-  updateRatingSection();
+
+  if (startQuizButton) {
+    startQuizButton.hidden = true;
+    startQuizButton.disabled = true;
+  }
+  if (quizResultEl) {
+    quizResultEl.hidden = true;
+  }
+  if (quizMessageEl) {
+    quizMessageEl.textContent = "";
+  }
   renderQuizQuestion();
+  updateRatingSection();
 }
 
 if (userMenuButton) {
@@ -807,3 +1012,7 @@ showLoginLink.addEventListener("click", (event) => {
 });
 
 initialize();
+
+
+
+
