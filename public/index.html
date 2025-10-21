@@ -12,7 +12,24 @@
         <h1>Pickleball Progress Lab</h1>
         <p class="tagline">Daily quests designed to level up your on-court game</p>
       </div>
-      <button id="logoutBtn" class="ghost-button" hidden>Log out</button>
+      <div class="user-menu" id="userMenu" hidden>
+        <button
+          id="userMenuButton"
+          class="user-button"
+          type="button"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <span id="userMenuName">Player</span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="user-dropdown" id="userMenuDropdown" hidden role="menu">
+          <button type="button" class="dropdown-item" id="profileMenuItem">Profile</button>
+          <button type="button" class="dropdown-item" id="settingsMenuItem">Settings</button>
+          <hr />
+          <button type="button" class="dropdown-item danger" id="logoutButton">Log out</button>
+        </div>
+      </div>
     </header>
 
     <main>

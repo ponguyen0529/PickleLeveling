@@ -14,7 +14,13 @@ const showLoginLink = document.getElementById("showLogin");
 const authSection = document.getElementById("authSection");
 const dashboardSection = document.getElementById("dashboardSection");
 const authMessage = document.getElementById("authMessage");
-const logoutBtn = document.getElementById("logoutBtn");
+const userMenu = document.getElementById("userMenu");
+const userMenuButton = document.getElementById("userMenuButton");
+const userMenuDropdown = document.getElementById("userMenuDropdown");
+const userMenuName = document.getElementById("userMenuName");
+const profileMenuItem = document.getElementById("profileMenuItem");
+const settingsMenuItem = document.getElementById("settingsMenuItem");
+const logoutButton = document.getElementById("logoutButton");
 
 const greetingEl = document.getElementById("playerGreeting");
 const levelEl = document.getElementById("playerLevel");
@@ -30,6 +36,7 @@ const leaderboardListEl = document.getElementById("leaderboardList");
 const registerEmailInput = registerForm?.elements?.email;
 const emailFeedbackEl = document.getElementById("emailFeedback");
 let emailTouched = false;
+let userMenuOpen = false;
 
 function setEmailFeedback(type, message) {
   if (!emailFeedbackEl) {
@@ -78,6 +85,7 @@ function setAuthMode(mode) {
   authMessage.textContent = "";
   emailTouched = false;
   setEmailFeedback("", "");
+  closeUserMenu();
 }
 
 if (registerEmailInput) {
@@ -93,6 +101,70 @@ if (registerEmailInput) {
     validateEmailField(true);
   });
 }
+
+function setUserMenuOpen(open) {
+  userMenuOpen = open;
+  if (!userMenuDropdown || !userMenuButton) {
+    return;
+  }
+  userMenuDropdown.hidden = !open;
+  userMenuButton.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+function closeUserMenu() {
+  setUserMenuOpen(false);
+}
+
+function toggleUserMenu() {
+  setUserMenuOpen(!userMenuOpen);
+}
+
+if (userMenuButton) {
+  userMenuButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleUserMenu();
+  });
+}
+
+if (profileMenuItem) {
+  profileMenuItem.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    closeUserMenu();
+    if (questMessageEl) {
+      questMessageEl.textContent = "Profile editing is coming soon.";
+    }
+  });
+}
+
+if (settingsMenuItem) {
+  settingsMenuItem.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    closeUserMenu();
+    if (questMessageEl) {
+      questMessageEl.textContent = "Settings customization is on the roadmap.";
+    }
+  });
+}
+
+document.addEventListener("click", (event) => {
+  if (!userMenuOpen || !userMenu) {
+    return;
+  }
+  if (userMenu.contains(event.target)) {
+    return;
+  }
+  closeUserMenu();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && userMenuOpen) {
+    closeUserMenu();
+    userMenuButton?.focus();
+  }
+});
 
 async function request(url, options = {}) {
   const opts = {
@@ -136,6 +208,9 @@ async function refreshDashboard() {
 function renderDashboard() {
   if (!state.user) {
     return;
+  }
+  if (userMenuName) {
+    userMenuName.textContent = state.user.username;
   }
   greetingEl.textContent = `Hey ${state.user.username}, ready for the next rally?`;
   levelEl.textContent = state.user.progress.level;
@@ -337,25 +412,35 @@ registerForm.addEventListener("submit", async (event) => {
   }
 });
 
-logoutBtn.addEventListener("click", async () => {
-  try {
-    await request("/api/auth/logout", { method: "POST" });
-  } finally {
-    state.user = null;
-    state.daily = null;
-    state.history = [];
-    state.leaderboard = [];
-    dashboardSection.hidden = true;
-    authSection.hidden = false;
-    logoutBtn.hidden = true;
-    setAuthMode("login");
-  }
-});
+if (logoutButton) {
+  logoutButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      await request("/api/auth/logout", { method: "POST" });
+    } finally {
+      closeUserMenu();
+      state.user = null;
+      state.daily = null;
+      state.history = [];
+      state.leaderboard = [];
+      dashboardSection.hidden = true;
+      authSection.hidden = false;
+      if (userMenu) {
+        userMenu.hidden = true;
+      }
+      setAuthMode("login");
+    }
+  });
+}
 
 async function showDashboard() {
   authSection.hidden = true;
   dashboardSection.hidden = false;
-  logoutBtn.hidden = false;
+  if (userMenu) {
+    userMenu.hidden = false;
+  }
+  closeUserMenu();
   await refreshDashboard();
 }
 
@@ -371,6 +456,10 @@ async function initialize() {
     console.warn("Unable to auto-login:", error.message);
   }
 
+  if (userMenu) {
+    userMenu.hidden = true;
+  }
+  closeUserMenu();
   setAuthMode("login");
 }
 

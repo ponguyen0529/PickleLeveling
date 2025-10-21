@@ -429,3 +429,83 @@ footer {
   font-family: "Bebas Neue", "Rajdhani", sans-serif;
   letter-spacing: 0.04em;
 }
+  position: relative;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 251, 242, 0.5);
+  background: rgba(138, 164, 106, 0.35);
+  color: #f7fbf2;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+.user-button:hover {
+  background: rgba(138, 164, 106, 0.55);
+  border-color: rgba(247, 251, 242, 0.85);
+  transform: translateY(-1px);
+}
+
+.user-button .caret {
+  font-size: 0.9rem;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  min-width: 180px;
+  background: rgba(237, 243, 231, 0.96);
+  border: 1px solid rgba(133, 152, 120, 0.35);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(53, 73, 47, 0.25);
+  padding: 0.5rem;
+  display: grid;
+  gap: 0.35rem;
+  z-index: 20;
+}
+
+.dropdown-item {
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  color: #2f412d;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(138, 164, 106, 0.15);
+}
+
+.dropdown-item.danger {
+  color: #ad3b3b;
+}
+
+.dropdown-item.danger:hover {
+  background: rgba(192, 100, 100, 0.18);
+  color: #7c1f1f;
+}
+
+.user-dropdown hr {
+  border: none;
+  height: 1px;
+  background: rgba(133, 152, 120, 0.3);
+  margin: 0.25rem 0;
