@@ -133,6 +133,33 @@
             </div>
           </div>
 
+          <div class="card" id="ratingCard">
+            <h2>Skill Estimate</h2>
+            <p id="ratingSummary" class="supporting-copy">
+              Don&apos;t know your rating? Let&apos;s estimate it together.
+            </p>
+            <button type="button" id="startQuizButton">Start rating quiz</button>
+            <div id="quizContainer" class="quiz-container" hidden>
+              <div class="quiz-progress">
+                <span id="quizProgress"></span>
+              </div>
+              <h3 id="quizPrompt"></h3>
+              <div id="quizOptions" class="quiz-options"></div>
+              <p id="quizMessage" class="message"></p>
+              <div class="quiz-actions">
+                <button type="button" id="quizBackButton" class="secondary-button">Back</button>
+                <button type="button" id="quizNextButton">Next</button>
+              </div>
+            </div>
+            <div id="quizResult" class="quiz-result" hidden>
+              <p class="quiz-rating" id="quizRatingValue"></p>
+              <p id="quizRatingGuidance"></p>
+              <button type="button" id="retakeQuizButton" class="secondary-button">
+                Retake quiz
+              </button>
+            </div>
+          </div>
+
           <div class="card">
             <h2>Today&apos;s Quests</h2>
             <p class="date-label" id="dailyDate"></p>

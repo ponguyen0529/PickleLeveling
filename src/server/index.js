@@ -3,6 +3,7 @@ const express = require("express");
 const session = require("express-session");
 
 const userService = require("./services/userService");
+const quizService = require("./services/quizService");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -116,6 +117,25 @@ app.get("/api/community/leaderboard", async (_req, res) => {
     res.json({ leaderboard });
   } catch (error) {
     res.status(500).json({ error: "Failed to load leaderboard" });
+  }
+});
+
+app.get("/api/quiz/questions", (_req, res) => {
+  const questions = quizService.getQuestions();
+  res.json({ questions });
+});
+
+app.post("/api/quiz/estimate", requireAuth, async (req, res) => {
+  try {
+    const { answers } = req.body;
+    const result = await quizService.saveRating(req.session.userId, answers);
+    const profile = await userService.getProfile(req.session.userId);
+    res.json({
+      rating: result.rating,
+      user: profile
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

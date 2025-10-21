@@ -139,6 +139,7 @@ async function register({ username, password, email, gender }) {
     lastDailyReset: null,
     dailyQuests: null,
     questHistory: [],
+    estimatedRating: null,
     createdAt: new Date().toISOString()
   };
 

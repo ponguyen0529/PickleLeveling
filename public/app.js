@@ -2,7 +2,14 @@ const state = {
   user: null,
   daily: null,
   history: [],
-  leaderboard: []
+  leaderboard: [],
+  quizQuestions: [],
+  quiz: {
+    active: false,
+    currentIndex: 0,
+    answers: {},
+    submitting: false
+  }
 };
 
 const loginForm = document.getElementById("loginForm");
@@ -33,6 +40,19 @@ const questListEl = document.getElementById("questList");
 const questMessageEl = document.getElementById("questMessage");
 const historyListEl = document.getElementById("historyList");
 const leaderboardListEl = document.getElementById("leaderboardList");
+const ratingSummaryEl = document.getElementById("ratingSummary");
+const startQuizButton = document.getElementById("startQuizButton");
+const quizContainer = document.getElementById("quizContainer");
+const quizProgressEl = document.getElementById("quizProgress");
+const quizPromptEl = document.getElementById("quizPrompt");
+const quizOptionsEl = document.getElementById("quizOptions");
+const quizMessageEl = document.getElementById("quizMessage");
+const quizBackButton = document.getElementById("quizBackButton");
+const quizNextButton = document.getElementById("quizNextButton");
+const quizResultEl = document.getElementById("quizResult");
+const quizRatingValueEl = document.getElementById("quizRatingValue");
+const quizRatingGuidanceEl = document.getElementById("quizRatingGuidance");
+const retakeQuizButton = document.getElementById("retakeQuizButton");
 const registerEmailInput = registerForm?.elements?.email;
 const emailFeedbackEl = document.getElementById("emailFeedback");
 let emailTouched = false;
@@ -128,6 +148,264 @@ function toggleUserMenu() {
   setUserMenuOpen(!userMenuOpen);
 }
 
+async function loadQuizQuestions() {
+  if (state.quizQuestions?.length > 0) {
+    return;
+  }
+  const response = await request("/api/quiz/questions");
+  state.quizQuestions = response.questions || [];
+}
+
+function resetQuizState() {
+  state.quiz = {
+    active: false,
+    currentIndex: 0,
+    answers: {},
+    submitting: false
+  };
+  if (quizMessageEl) {
+    quizMessageEl.textContent = "";
+  }
+  if (quizOptionsEl) {
+    quizOptionsEl.innerHTML = "";
+  }
+  if (quizPromptEl) {
+    quizPromptEl.textContent = "";
+  }
+  if (quizProgressEl) {
+    quizProgressEl.textContent = "";
+  }
+}
+
+function updateRatingSection() {
+  if (!ratingSummaryEl) {
+    return;
+  }
+  const rating = state.user?.estimatedRating || null;
+
+  if (state.quiz.active) {
+    ratingSummaryEl.textContent = "Answer a few questions to estimate your rating.";
+    if (startQuizButton) {
+      startQuizButton.hidden = true;
+    }
+    if (quizContainer) {
+      quizContainer.hidden = false;
+    }
+    if (quizResultEl) {
+      quizResultEl.hidden = true;
+    }
+    if (retakeQuizButton) {
+      retakeQuizButton.hidden = true;
+    }
+    return;
+  }
+
+  if (quizContainer) {
+    quizContainer.hidden = true;
+  }
+
+  if (rating) {
+    ratingSummaryEl.textContent = `Your estimated rating: ${rating.label}`;
+    if (quizRatingValueEl) {
+      quizRatingValueEl.textContent = rating.label;
+    }
+    if (quizRatingGuidanceEl) {
+      quizRatingGuidanceEl.textContent = rating.guidance;
+    }
+    if (quizResultEl) {
+      quizResultEl.hidden = false;
+    }
+    if (retakeQuizButton) {
+      retakeQuizButton.hidden = false;
+    }
+    if (startQuizButton) {
+      startQuizButton.hidden = true;
+    }
+  } else {
+    ratingSummaryEl.textContent = "Don't know your rating? Let's estimate it together.";
+    if (quizResultEl) {
+      quizResultEl.hidden = true;
+    }
+    if (retakeQuizButton) {
+      retakeQuizButton.hidden = true;
+    }
+    if (startQuizButton) {
+      startQuizButton.hidden = false;
+      startQuizButton.textContent = "Start rating quiz";
+    }
+  }
+}
+
+function renderQuizQuestion() {
+  if (!state.quiz.active || !quizContainer) {
+    return;
+  }
+
+  const questions = state.quizQuestions || [];
+  if (questions.length === 0) {
+    if (quizMessageEl) {
+      quizMessageEl.textContent = "Questions are still loading. Please try again.";
+    }
+    return;
+  }
+
+  const currentQuestion = questions[state.quiz.currentIndex];
+  if (!currentQuestion) {
+    return;
+  }
+
+  quizContainer.hidden = false;
+  if (quizMessageEl) {
+    quizMessageEl.textContent = "";
+  }
+  if (quizProgressEl) {
+    quizProgressEl.textContent = `Question ${state.quiz.currentIndex + 1} of ${questions.length}`;
+  }
+  if (quizPromptEl) {
+    quizPromptEl.textContent = currentQuestion.prompt;
+  }
+
+  if (quizOptionsEl) {
+    quizOptionsEl.innerHTML = "";
+    currentQuestion.options.forEach((option) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "quiz-option";
+      button.textContent = option.label;
+      if (state.quiz.answers[currentQuestion.id] === option.id) {
+        button.classList.add("selected");
+      }
+      button.addEventListener("click", () => {
+        if (state.quiz.submitting) {
+          return;
+        }
+        state.quiz.answers = {
+          ...state.quiz.answers,
+          [currentQuestion.id]: option.id
+        };
+        renderQuizQuestion();
+      });
+      quizOptionsEl.appendChild(button);
+    });
+  }
+
+  if (quizBackButton) {
+    quizBackButton.disabled = state.quiz.currentIndex === 0 || state.quiz.submitting;
+  }
+  if (quizNextButton) {
+    quizNextButton.disabled = state.quiz.submitting;
+    quizNextButton.textContent =
+      state.quiz.currentIndex === questions.length - 1 ? "Submit" : "Next";
+  }
+}
+
+function handleQuizBack() {
+  if (!state.quiz.active || state.quiz.submitting) {
+    return;
+  }
+  if (state.quiz.currentIndex === 0) {
+    resetQuizState();
+    updateRatingSection();
+    return;
+  }
+  state.quiz.currentIndex -= 1;
+  renderQuizQuestion();
+}
+
+async function submitQuiz() {
+  if (state.quiz.submitting) {
+    return;
+  }
+  const questions = state.quizQuestions || [];
+  const answers = questions
+    .map((question) => ({
+      questionId: question.id,
+      optionId: state.quiz.answers[question.id]
+    }))
+    .filter((entry) => entry.optionId);
+
+  if (answers.length !== questions.length) {
+    if (quizMessageEl) {
+      quizMessageEl.textContent = "Please answer every question before submitting.";
+    }
+    return;
+  }
+
+  state.quiz.submitting = true;
+  if (quizMessageEl) {
+    quizMessageEl.textContent = "Scoring your estimate...";
+  }
+  if (quizBackButton) {
+    quizBackButton.disabled = true;
+  }
+  if (quizNextButton) {
+    quizNextButton.disabled = true;
+  }
+
+  try {
+    const response = await request("/api/quiz/estimate", {
+      method: "POST",
+      body: {
+        answers
+      }
+    });
+    state.user = response.user;
+    state.quiz.submitting = false;
+    resetQuizState();
+    updateRatingSection();
+    renderDashboard();
+  } catch (error) {
+    state.quiz.submitting = false;
+    if (quizMessageEl) {
+      quizMessageEl.textContent = error.message;
+    }
+    renderQuizQuestion();
+  }
+}
+
+function handleQuizNext() {
+  if (!state.quiz.active || state.quiz.submitting) {
+    return;
+  }
+  const questions = state.quizQuestions || [];
+  const currentQuestion = questions[state.quiz.currentIndex];
+  if (!currentQuestion) {
+    return;
+  }
+  if (!state.quiz.answers[currentQuestion.id]) {
+    if (quizMessageEl) {
+      quizMessageEl.textContent = "Choose an option to continue.";
+    }
+    return;
+  }
+  if (state.quiz.currentIndex === questions.length - 1) {
+    submitQuiz();
+  } else {
+    state.quiz.currentIndex += 1;
+    renderQuizQuestion();
+  }
+}
+
+async function startQuiz() {
+  try {
+    await loadQuizQuestions();
+  } catch (error) {
+    if (quizMessageEl) {
+      quizMessageEl.textContent = error.message || "Unable to load quiz questions.";
+    }
+    return;
+  }
+
+  state.quiz = {
+    active: true,
+    currentIndex: 0,
+    answers: {},
+    submitting: false
+  };
+  updateRatingSection();
+  renderQuizQuestion();
+}
+
 if (userMenuButton) {
   userMenuButton.addEventListener("click", (event) => {
     event.preventDefault();
@@ -138,6 +416,31 @@ if (userMenuButton) {
       event.preventDefault();
       toggleUserMenu();
     }
+  });
+}
+
+if (startQuizButton) {
+  startQuizButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    startQuiz();
+  });
+}
+
+if (quizNextButton) {
+  quizNextButton.addEventListener("click", handleQuizNext);
+}
+
+if (quizBackButton) {
+  quizBackButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    handleQuizBack();
+  });
+}
+
+if (retakeQuizButton) {
+  retakeQuizButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    startQuiz();
   });
 }
 
@@ -213,16 +516,18 @@ async function request(url, options = {}) {
 
 async function refreshDashboard() {
   try {
-    const [profileRes, daily, historyRes, leaderboardRes] = await Promise.all([
+    const [profileRes, daily, historyRes, leaderboardRes, quizQuestionsRes] = await Promise.all([
       request("/api/auth/me"),
       request("/api/quests/daily"),
       request("/api/quests/history"),
-      request("/api/community/leaderboard")
+      request("/api/community/leaderboard"),
+      request("/api/quiz/questions")
     ]);
     state.user = profileRes.user;
     state.daily = daily;
     state.history = historyRes.history;
     state.leaderboard = leaderboardRes.leaderboard;
+    state.quizQuestions = quizQuestionsRes.questions || [];
     renderDashboard();
   } catch (error) {
     questMessageEl.textContent = error.message;
@@ -231,7 +536,12 @@ async function refreshDashboard() {
 
 function renderDashboard() {
   if (!state.user) {
+    updateRatingSection();
     return;
+  }
+  updateRatingSection();
+  if (state.quiz.active) {
+    renderQuizQuestion();
   }
   if (userMenuName) {
     userMenuName.textContent = state.user.username;

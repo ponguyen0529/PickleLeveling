@@ -86,6 +86,65 @@
         }
       ],
       "createdAt": "2025-10-21T14:05:48.566Z"
+    },
+    {
+      "id": "dc06ac61-b110-416b-b76b-a4b4adb40d12",
+      "username": "test1123",
+      "passwordHash": "$2b$10$yse4HLXawpVn75k73kozuOuRJjPJrYIWJ8RV9LfS6FYzOma0pADiy",
+      "totalXp": 0,
+      "level": 1,
+      "streak": 1,
+      "bestStreak": 1,
+      "lastDailyReset": "2025-10-21",
+      "dailyQuests": {
+        "date": "2025-10-21",
+        "quests": [
+          {
+            "id": "7f7b35db-274c-4280-b3b4-669892960e5f",
+            "templateId": "footwork-hops",
+            "title": "Kitchen Shuffle & Split-Step",
+            "description": "15 rounds of kitchen line split-steps with recovery backpedal.",
+            "focus": "movement",
+            "xp": 40,
+            "tags": [
+              "agility",
+              "fitness"
+            ],
+            "durationMinutes": 15,
+            "completed": false
+          },
+          {
+            "id": "f5b4a0ea-3206-4a92-b444-0fdb9768c107",
+            "templateId": "serve-basics",
+            "title": "Serve 30 balls",
+            "description": "Practice consistent deep serves with proper footwork.",
+            "focus": "serves",
+            "xp": 50,
+            "tags": [
+              "fundamentals",
+              "solo"
+            ],
+            "durationMinutes": 20,
+            "completed": false
+          },
+          {
+            "id": "ff99d1d8-cac8-403a-9bea-92959fcc7a45",
+            "templateId": "match-review",
+            "title": "Match Film Review",
+            "description": "Analyze last match to identify 3 tactical adjustments.",
+            "focus": "strategy",
+            "xp": 45,
+            "tags": [
+              "analysis",
+              "solo"
+            ],
+            "durationMinutes": 20,
+            "completed": false
+          }
+        ]
+      },
+      "questHistory": [],
+      "createdAt": "2025-10-21T14:38:57.708Z"
     }
   ]
 }

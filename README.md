@@ -9,6 +9,7 @@ A focused daily training companion where pickleball players can log in, complete
 - XP-based leveling system with progress feedback for each player.
 - Quest completion history, including recent highlights and XP gains.
 - Community leaderboard that ranks players by total XP and best streak.
+- Guided rating quiz that estimates your current skill level and stores tailored guidance.
 - Responsive, single-page experience with vanilla JS, tailored styling, and zero build tooling.
 
 ## Getting Started
