@@ -34,8 +34,13 @@ function requireAuth(req, res, next) {
 
 app.post("/api/auth/register", async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await userService.register({ username, password });
+    const { username, password, email, gender } = req.body;
+    const user = await userService.register({
+      username,
+      password,
+      email,
+      gender
+    });
     req.session.userId = user.id;
     res.json(user);
   } catch (error) {

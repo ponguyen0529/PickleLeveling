@@ -69,27 +69,60 @@ function getRandomQuests(count = DAILY_QUEST_COUNT) {
 }
 
 async function findUser(username) {
+  if (typeof username !== "string") {
+    return undefined;
+  }
+  const normalized = username.trim().toLowerCase();
+  if (!normalized) {
+    return undefined;
+  }
   const data = await dataStore.read();
   return data.users.find(
-    (u) => u.username.trim().toLowerCase() === username.trim().toLowerCase()
+    (u) => u.username.trim().toLowerCase() === normalized
   );
 }
 
-async function register({ username, password }) {
-  if (!username || !password) {
-    throw new Error("Username and password are required.");
+const VALID_GENDERS = new Set(["female", "male", "nonbinary", "prefer_not"]);
+
+async function register({ username, password, email, gender }) {
+  const trimmedUsername = typeof username === "string" ? username.trim() : "";
+  if (!trimmedUsername) {
+    throw new Error("Username is required.");
   }
-  const existing = await findUser(username);
+  if (!password) {
+    throw new Error("Password is required.");
+  }
+  if (password.length < 6) {
+    throw new Error("Password must be at least 6 characters.");
+  }
+  const normalizedEmail =
+    typeof email === "string" ? email.trim().toLowerCase() : "";
+  if (!normalizedEmail) {
+    throw new Error("Email is required.");
+  }
+  if (!gender || !VALID_GENDERS.has(gender)) {
+    throw new Error("Please select a valid gender option.");
+  }
+
+  const existing = await findUser(trimmedUsername);
   if (existing) {
     throw new Error("That username is already taken.");
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
   const data = await dataStore.read();
+  const emailInUse = data.users.find(
+    (user) => (user.email || "").toLowerCase() === normalizedEmail
+  );
+  if (emailInUse) {
+    throw new Error("That email is already registered.");
+  }
 
   const user = {
     id: randomUUID(),
-    username,
+    username: trimmedUsername,
+    email: normalizedEmail,
+    gender,
     passwordHash,
     totalXp: 0,
     level: 1,
@@ -107,7 +140,12 @@ async function register({ username, password }) {
 }
 
 async function authenticate(username, password) {
-  const user = await findUser(username);
+  const normalizedUsername =
+    typeof username === "string" ? username.trim() : "";
+  if (!normalizedUsername) {
+    return null;
+  }
+  const user = await findUser(normalizedUsername);
   if (!user) {
     return null;
   }

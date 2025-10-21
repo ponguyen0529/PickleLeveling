@@ -235,11 +235,43 @@ loginForm.addEventListener("submit", async (event) => {
 registerForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(registerForm);
-  const username = formData.get("username");
+  const username = formData.get("username")?.trim();
   const password = formData.get("password");
+  const confirmPassword = formData.get("confirmPassword");
+  const email = formData.get("email")?.trim();
+  const gender = formData.get("gender");
+
+  if (!username) {
+    authMessage.textContent = "Username is required.";
+    return;
+  }
+
+  if (!email) {
+    authMessage.textContent = "Email is required.";
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    authMessage.textContent = "Passwords do not match.";
+    return;
+  }
+
+  if (!gender) {
+    authMessage.textContent = "Please select a gender option.";
+    return;
+  }
   try {
-    await request("/api/auth/register", { method: "POST", body: { username, password } });
+    await request("/api/auth/register", {
+      method: "POST",
+      body: {
+        username,
+        password,
+        email,
+        gender
+      }
+    });
     registerForm.reset();
+    setAuthMode("login");
     authMessage.textContent = "Account created! You're logged in.";
     await showDashboard();
   } catch (error) {
