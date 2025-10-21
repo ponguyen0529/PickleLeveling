@@ -109,6 +109,13 @@ function setUserMenuOpen(open) {
   }
   userMenuDropdown.hidden = !open;
   userMenuButton.setAttribute("aria-expanded", open ? "true" : "false");
+  if (userMenu) {
+    if (open) {
+      userMenu.classList.add("open");
+    } else {
+      userMenu.classList.remove("open");
+    }
+  }
 }
 
 function closeUserMenu() {
@@ -124,6 +131,12 @@ if (userMenuButton) {
     event.preventDefault();
     event.stopPropagation();
     toggleUserMenu();
+  });
+  userMenuButton.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      toggleUserMenu();
+    }
   });
 }
 
