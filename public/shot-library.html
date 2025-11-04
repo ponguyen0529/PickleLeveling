@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shot Library - Pickleball Progress Lab</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="shot-library-page">
+    <header>
+      <div class="brand">
+        <h1>Pickleball Progress Lab</h1>
+        <p class="tagline">Daily quests designed to level up your on-court game</p>
+      </div>
+      <nav class="primary-nav" aria-label="Primary">
+        <a href="/">Dashboard</a>
+        <a href="/shot-library.html" id="shotLibraryLink" aria-current="page" hidden>Shot Library</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="card shot-library-card">
+        <header class="shot-library-header">
+          <div class="shot-library-header-text">
+            <h2>Shot Library</h2>
+            <p class="supporting-copy">
+              Browse every drill and shot pattern we recommend when you want targeted reps.
+            </p>
+            <p class="shot-library-count">
+              <span id="shotCount">0</span> focused sessions to explore.
+            </p>
+          </div>
+          <div class="shot-header-actions">
+            <button
+              type="button"
+              class="primary-button shot-add-button"
+              id="openCustomShotForm"
+              aria-expanded="false"
+            >
+              Add custom shot
+            </button>
+          </div>
+        </header>
+
+        <div id="shotFormContainer" class="shot-form-container" hidden>
+          <form id="customShotForm" class="shot-form">
+            <div class="shot-form-grid">
+              <label>
+                Shot name
+                <input
+                  type="text"
+                  name="name"
+                  id="shotName"
+                  required
+                  maxlength="80"
+                  autocomplete="off"
+                />
+              </label>
+              <label>
+                Focus label
+                <input
+                  type="text"
+                  name="focus"
+                  id="shotFocus"
+                  maxlength="60"
+                  placeholder="E.g. Power + depth"
+                  autocomplete="off"
+                />
+              </label>
+              <label>
+                XP reward
+                <input
+                  type="number"
+                  name="xp"
+                  id="shotXp"
+                  min="10"
+                  max="500"
+                  placeholder="50"
+                  autocomplete="off"
+                />
+              </label>
+              <label>
+                Duration (minutes)
+                <input
+                  type="number"
+                  name="durationMinutes"
+                  id="shotDuration"
+                  min="5"
+                  max="240"
+                  placeholder="20"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="full-width">
+                Tags
+                <input
+                  type="text"
+                  name="tags"
+                  id="shotTags"
+                  placeholder="Comma separated, e.g. forehand, footwork"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="full-width">
+                Description
+                <textarea
+                  name="description"
+                  id="shotDescription"
+                  rows="3"
+                  required
+                  maxlength="600"
+                  placeholder="Outline reps, targets, and cues you'll remember."
+                ></textarea>
+              </label>
+            </div>
+            <div class="shot-form-actions">
+              <button type="submit" class="primary-button">Save to library</button>
+              <button type="button" class="secondary-button" id="cancelShotForm">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="shotCollapsedInfo" class="shot-collapsed-hint" hidden>
+          Custom shot saved. Click "Add custom shot" to add another.
+        </div>
+
+        <p id="shotFormMessage" class="message" role="alert"></p>
+        <ul id="shotLibraryList" class="shot-list shot-library-list"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <small>Built for players chasing progress one quest at a time.</small>
+    </footer>
+
+    <script src="/shot-library-data.js" defer></script>
+    <script src="/shot-library.js" defer></script>
+  </body>
+</html>
+

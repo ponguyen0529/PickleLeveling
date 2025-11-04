@@ -4,58 +4,61 @@
       "id": "0f67da07-eeb2-46a7-9cfc-3fdd0ccaac18",
       "username": "ponguyen0529",
       "passwordHash": "$2b$10$i3OccIMNgQLavcARoIXzNuo3a.gNxG1BzCSMPFeRMUVlbBQtKeWNi",
-      "totalXp": 155,
-      "level": 2,
-      "streak": 1,
-      "bestStreak": 1,
-      "lastDailyReset": "2025-10-21",
+      "totalXp": 327,
+      "level": 3,
+      "streak": 2,
+      "bestStreak": 2,
+      "lastDailyReset": "2025-10-22",
       "dailyQuests": {
-        "date": "2025-10-21",
+        "date": "2025-10-22",
         "quests": [
           {
-            "id": "0213a69c-eb65-42f7-95b7-8264651718f5",
-            "templateId": "third-shot-drop",
-            "title": "Third Shot Drop Progression",
-            "description": "Rotate between drop, drive, and lob for three 10-ball sequences.",
-            "focus": "third-shot",
-            "xp": 70,
+            "id": "ae317bed-1021-4ef3-9f6c-a988cf6764f8",
+            "templateId": "flick-series",
+            "title": "Kitchen Flick & Roll Series",
+            "description": "From the NVZ, alternate forehand and backhand flicks vs. an opponent or practice board. 6 sets of 12 alternating quick-fire reps.",
+            "focus": "attacks",
+            "xp": 62,
             "tags": [
-              "transition",
-              "drills"
-            ],
-            "durationMinutes": 30,
-            "completed": true,
-            "completedAt": "2025-10-21T14:06:01.846Z"
-          },
-          {
-            "id": "39091bc4-20f9-456a-a795-108e93bf773b",
-            "templateId": "match-review",
-            "title": "Match Film Review",
-            "description": "Analyze last match to identify 3 tactical adjustments.",
-            "focus": "strategy",
-            "xp": 45,
-            "tags": [
-              "analysis",
-              "solo"
+              "forehand",
+              "backhand",
+              "speed-up",
+              "kitchen"
             ],
             "durationMinutes": 20,
             "completed": true,
-            "completedAt": "2025-10-21T14:06:05.523Z"
+            "completedAt": "2025-10-22T15:28:45.393Z"
           },
           {
-            "id": "25dc4d03-c3fd-4d88-a10e-823fb77ba604",
-            "templateId": "footwork-hops",
-            "title": "Kitchen Shuffle & Split-Step",
-            "description": "15 rounds of kitchen line split-steps with recovery backpedal.",
-            "focus": "movement",
-            "xp": 40,
+            "id": "75648c84-f08a-4a2d-935a-1663b31bc95f",
+            "templateId": "fh-cross-court-drive",
+            "title": "Forehand Cross-Court Drive Ladder",
+            "description": "From the baseline, hit 6 sets of 10 cross-court drives focusing on height over the net and footwork recovery.",
+            "focus": "drives",
+            "xp": 55,
             "tags": [
-              "agility",
-              "fitness"
+              "forehand",
+              "baseline",
+              "power"
             ],
-            "durationMinutes": 15,
+            "durationMinutes": 20,
             "completed": true,
-            "completedAt": "2025-10-21T14:06:07.005Z"
+            "completedAt": "2025-10-22T15:28:47.354Z"
+          },
+          {
+            "id": "976ba4a6-3834-42a2-b046-0eda90b1fcfe",
+            "templateId": "serve-return-sync",
+            "title": "Serve & Return Groove",
+            "description": "Pair serves (forehand/backhand) with deep cross-court returns. Complete 4 cycles of 12 balls each, rotating wings.",
+            "focus": "serve-return",
+            "xp": 55,
+            "tags": [
+              "baseline",
+              "fundamentals"
+            ],
+            "durationMinutes": 18,
+            "completed": true,
+            "completedAt": "2025-10-22T15:28:48.442Z"
           }
         ]
       },
@@ -83,6 +86,30 @@
           "xpEarned": 40,
           "completedAt": "2025-10-21T14:06:07.005Z",
           "dayKey": "2025-10-21"
+        },
+        {
+          "instanceId": "ae317bed-1021-4ef3-9f6c-a988cf6764f8",
+          "templateId": "flick-series",
+          "title": "Kitchen Flick & Roll Series",
+          "xpEarned": 62,
+          "completedAt": "2025-10-22T15:28:45.393Z",
+          "dayKey": "2025-10-22"
+        },
+        {
+          "instanceId": "75648c84-f08a-4a2d-935a-1663b31bc95f",
+          "templateId": "fh-cross-court-drive",
+          "title": "Forehand Cross-Court Drive Ladder",
+          "xpEarned": 55,
+          "completedAt": "2025-10-22T15:28:47.354Z",
+          "dayKey": "2025-10-22"
+        },
+        {
+          "instanceId": "976ba4a6-3834-42a2-b046-0eda90b1fcfe",
+          "templateId": "serve-return-sync",
+          "title": "Serve & Return Groove",
+          "xpEarned": 55,
+          "completedAt": "2025-10-22T15:28:48.442Z",
+          "dayKey": "2025-10-22"
         }
       ],
       "createdAt": "2025-10-21T14:05:48.566Z"
@@ -195,6 +222,103 @@
         ],
         "updatedAt": "2025-10-21T18:47:16.991Z"
       }
+    },
+    {
+      "id": "155e5e56-ef25-4c01-a1d0-f77cc23054bb",
+      "username": "test123",
+      "email": "asdawdasd@gmail.com",
+      "gender": "male",
+      "passwordHash": "$2b$10$OUHERz5r50VyHugW89Sr4.9BPPYG7bmk6r4EFFE5EA7QZH//sb7US",
+      "totalXp": 0,
+      "level": 1,
+      "streak": 1,
+      "bestStreak": 1,
+      "lastDailyReset": "2025-11-04",
+      "dailyQuests": {
+        "date": "2025-11-04",
+        "swapsRemaining": 0,
+        "quests": [
+          {
+            "id": "416a4245-bfe9-4785-b1fe-633d07f260d6",
+            "templateId": "serve-return-sync",
+            "title": "Serve & Return Groove",
+            "description": "Pair serves (forehand/backhand) with deep cross-court returns. Complete 4 cycles of 12 balls each, rotating wings.",
+            "focus": "serve-return",
+            "xp": 55,
+            "tags": [
+              "baseline",
+              "fundamentals"
+            ],
+            "durationMinutes": 18,
+            "completed": false
+          },
+          {
+            "id": "13ccca7c-b4f1-4f43-a672-489c982b0a3f",
+            "templateId": "flick-series",
+            "title": "Kitchen Flick & Roll Series",
+            "description": "From the NVZ, alternate forehand and backhand flicks vs. an opponent or practice board. 6 sets of 12 alternating quick-fire reps.",
+            "focus": "attacks",
+            "xp": 62,
+            "tags": [
+              "forehand",
+              "backhand",
+              "speed-up",
+              "kitchen"
+            ],
+            "durationMinutes": 20,
+            "completed": false
+          },
+          {
+            "id": "b9f3860c-3272-4095-a5e1-2c3f57cf9c5b",
+            "templateId": "lob-defense-offense",
+            "title": "Two-Way Lob Routine",
+            "description": "Split the drill: 10 deep defensive lobs from kitchen defense, then 10 offensive surprise lobs from neutral dinks per side.",
+            "focus": "lobs",
+            "xp": 60,
+            "tags": [
+              "defense",
+              "offense",
+              "situational"
+            ],
+            "durationMinutes": 20,
+            "completed": false
+          },
+          {
+            "id": "081f34e2-fe4a-4a73-a7c0-26d5669b55bc",
+            "templateId": "transition-shuffle",
+            "title": "Transition Shuffle & Split-Step",
+            "description": "Combine footwork with shot making: drop from baseline then split-step into NVZ 15 times each wing, emphasizing timing.",
+            "focus": "movement",
+            "xp": 50,
+            "tags": [
+              "footwork",
+              "transition",
+              "conditioning"
+            ],
+            "durationMinutes": 16,
+            "completed": false
+          },
+          {
+            "id": "7770545a-0f21-45d3-b78b-ea879f2e41ac",
+            "templateId": "bh-cross-drop",
+            "title": "Backhand Cross-Court Drop Progression",
+            "description": "Repeat the progression on the backhand side focusing on compact swing and follow-through into the kitchen line.",
+            "focus": "drops",
+            "xp": 65,
+            "tags": [
+              "backhand",
+              "touch",
+              "transition"
+            ],
+            "durationMinutes": 22,
+            "completed": false
+          }
+        ]
+      },
+      "questHistory": [],
+      "estimatedRating": null,
+      "createdAt": "2025-11-04T14:24:21.156Z",
+      "customShots": []
     }
   ]
 }

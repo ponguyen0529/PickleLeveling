@@ -12,6 +12,10 @@
         <h1>Pickleball Progress Lab</h1>
         <p class="tagline">Daily quests designed to level up your on-court game</p>
       </div>
+      <nav class="primary-nav" aria-label="Primary">
+        <a href="/" aria-current="page">Dashboard</a>
+        <a href="/shot-library.html" id="shotLibraryLink" hidden>Shot Library</a>
+      </nav>
       <div class="user-menu" id="userMenu" hidden>
         <button
           id="userMenuButton"
@@ -138,35 +142,53 @@
             <p id="ratingSummary" class="supporting-copy">
               Don&apos;t know your rating? Let&apos;s estimate it together.
             </p>
-            <button type="button" id="startQuizButton">Start rating quiz</button>
-            <div id="quizContainer" class="quiz-container" hidden>
-              <div class="quiz-progress">
-                <span id="quizProgress"></span>
-              </div>
-              <h3 id="quizPrompt"></h3>
-              <div id="quizOptions" class="quiz-options"></div>
-              <p id="quizMessage" class="message"></p>
-              <div class="quiz-actions">
-                <button type="button" id="quizBackButton" class="secondary-button">Back</button>
-                <button type="button" id="quizNextButton">Next</button>
-              </div>
-            </div>
-            <div id="quizResult" class="quiz-result" hidden>
-              <p class="quiz-rating" id="quizRatingValue"></p>
-              <p id="quizScoreText"></p>
-              <p id="quizConfidenceText"></p>
-              <ul id="quizDomainList" class="quiz-domain-list"></ul>
-              <ul id="quizExplanationList" class="quiz-explanation-list"></ul>
-              <p id="quizRatingGuidance"></p>
-              <button type="button" id="retakeQuizButton" class="secondary-button">
-                Retake quiz
+            <div id="quizCollapsedCta" class="quiz-collapsed-cta">
+              <button
+                type="button"
+                id="collapsedStartQuizButton"
+                class="primary-button"
+                aria-expanded="false"
+              >
+                Start rating quiz
               </button>
+            </div>
+            <div id="quizDetailSection" class="quiz-detail-section" hidden>
+              <div class="quiz-detail-header">
+                <button type="button" id="closeQuizDetailsButton" class="secondary-button">
+                  Hide
+                </button>
+              </div>
+              <button type="button" id="startQuizButton">Start rating quiz</button>
+              <div id="quizContainer" class="quiz-container" hidden>
+                <div class="quiz-progress">
+                  <span id="quizProgress"></span>
+                </div>
+                <h3 id="quizPrompt"></h3>
+                <div id="quizOptions" class="quiz-options"></div>
+                <p id="quizMessage" class="message"></p>
+                <div class="quiz-actions">
+                  <button type="button" id="quizBackButton" class="secondary-button">Back</button>
+                  <button type="button" id="quizNextButton">Next</button>
+                </div>
+              </div>
+              <div id="quizResult" class="quiz-result" hidden>
+                <p class="quiz-rating" id="quizRatingValue"></p>
+                <p id="quizScoreText"></p>
+                <p id="quizConfidenceText"></p>
+                <ul id="quizDomainList" class="quiz-domain-list"></ul>
+                <ul id="quizExplanationList" class="quiz-explanation-list"></ul>
+                <p id="quizRatingGuidance"></p>
+                <button type="button" id="retakeQuizButton" class="secondary-button">
+                  Retake quiz
+                </button>
+              </div>
             </div>
           </div>
 
           <div class="card">
             <h2>Today&apos;s Quests</h2>
             <p class="date-label" id="dailyDate"></p>
+            <p class="supporting-copy" id="swapInfo"></p>
             <ul id="questList" class="quest-list"></ul>
             <p id="questMessage" class="message"></p>
           </div>
@@ -188,6 +210,7 @@
       <small>Built for players chasing progress one quest at a time.</small>
     </footer>
 
+    <script src="/shot-library-data.js" defer></script>
     <script src="/app.js" defer></script>
   </body>
 </html>

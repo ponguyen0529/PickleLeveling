@@ -4,6 +4,7 @@ const state = {
   history: [],
   leaderboard: [],
   quizQuestions: [],
+  customShots: [],
   quiz: {
     active: false,
     currentIndex: 0,
@@ -40,8 +41,11 @@ const bestStreakEl = document.getElementById("bestStreakValue");
 const dailyDateEl = document.getElementById("dailyDate");
 const questListEl = document.getElementById("questList");
 const questMessageEl = document.getElementById("questMessage");
+const swapInfoEl = document.getElementById("swapInfo");
 const historyListEl = document.getElementById("historyList");
 const leaderboardListEl = document.getElementById("leaderboardList");
+const shotLibraryLink = document.getElementById("shotLibraryLink");
+const shotListEl = document.getElementById("shotList");
 const ratingSummaryEl = document.getElementById("ratingSummary");
 const startQuizButton = document.getElementById("startQuizButton");
 const quizContainer = document.getElementById("quizContainer");
@@ -63,6 +67,18 @@ const registerEmailInput = registerForm?.elements?.email;
 const emailFeedbackEl = document.getElementById("emailFeedback");
 let emailTouched = false;
 let userMenuOpen = false;
+
+function setShotLibraryLinkVisible(visible) {
+  if (!shotLibraryLink) {
+    return;
+  }
+  if (visible) {
+    shotLibraryLink.hidden = false;
+    shotLibraryLink.removeAttribute("hidden");
+  } else {
+    shotLibraryLink.hidden = true;
+  }
+}
 
 function setEmailFeedback(type, message) {
   if (!emailFeedbackEl) {
@@ -111,7 +127,46 @@ function setAuthMode(mode) {
   authMessage.textContent = "";
   emailTouched = false;
   setEmailFeedback("", "");
+  if (!state.quiz.active) {
+    state.quiz.detailsOpen = false;
+    setQuizDetailsOpen(false);
+  }
+  setShotLibraryLinkVisible(false);
   closeUserMenu();
+}
+
+function refreshQuizCollapsedCta() {
+  if (!collapsedStartQuizButton) {
+    return;
+  }
+  if (state.quiz.active) {
+    collapsedStartQuizButton.disabled = true;
+    collapsedStartQuizButton.textContent = "Quiz in progress...";
+    return;
+  }
+  collapsedStartQuizButton.disabled = false;
+  const hasRating = Boolean(state.user?.estimatedRating);
+  collapsedStartQuizButton.textContent = hasRating ? "Review rating details" : "Start rating quiz";
+}
+
+function setQuizDetailsOpen(open) {
+  if (!quizDetailSection || !quizCollapsedCta) {
+    state.quiz.detailsOpen = open;
+    return;
+  }
+  if (!open && state.quiz.active) {
+    return;
+  }
+  state.quiz.detailsOpen = open;
+  quizDetailSection.hidden = !open;
+  quizCollapsedCta.hidden = !!open;
+  if (collapsedStartQuizButton) {
+    collapsedStartQuizButton.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  if (closeQuizDetailsButton) {
+    closeQuizDetailsButton.hidden = !open;
+  }
+  refreshQuizCollapsedCta();
 }
 
 if (registerEmailInput) {
@@ -164,6 +219,7 @@ async function loadQuizQuestions() {
 
 function resetQuizState() {
   state.quiz = {
+    ...state.quiz,
     active: false,
     currentIndex: 0,
     answers: {},
@@ -272,13 +328,16 @@ function confidenceDescriptor(value) {
   return "Low";
 }
 
+
 function updateRatingSection() {
   if (!ratingSummaryEl) {
     return;
   }
+
   const rating = state.user?.estimatedRating || null;
 
   if (state.quiz.active) {
+    setQuizDetailsOpen(true);
     ratingSummaryEl.textContent = "Answer a few questions to estimate your rating.";
     if (startQuizButton) {
       startQuizButton.hidden = true;
@@ -293,19 +352,22 @@ function updateRatingSection() {
     if (retakeQuizButton) {
       retakeQuizButton.hidden = true;
     }
+    refreshQuizCollapsedCta();
     return;
   }
 
-  if (quizContainer) {
-    quizContainer.hidden = true;
-  }
+  setQuizDetailsOpen(state.quiz.detailsOpen);
+  refreshQuizCollapsedCta();
 
   if (!rating) {
     ratingSummaryEl.textContent = "Don't know your rating? Let's estimate it together.";
     if (startQuizButton) {
-      startQuizButton.hidden = false;
+      startQuizButton.hidden = !state.quiz.detailsOpen;
       startQuizButton.disabled = false;
       startQuizButton.textContent = "Start rating quiz";
+    }
+    if (quizContainer) {
+      quizContainer.hidden = true;
     }
     if (quizResultEl) {
       quizResultEl.hidden = true;
@@ -335,7 +397,8 @@ function updateRatingSection() {
   }
 
   const confidencePct = Math.round((rating.confidence ?? 0) * 100);
-  const confidenceLabelValue = rating.confidenceLabel || confidenceDescriptor(rating.confidence ?? 0);
+  const confidenceLabelValue =
+    rating.confidenceLabel || confidenceDescriptor(rating.confidence ?? 0);
   const summary =
     (rating.explanations && rating.explanations[0]) ||
     `Estimated rating ${rating.rating} (${rating.bandLabel}).`;
@@ -343,7 +406,7 @@ function updateRatingSection() {
   ratingSummaryEl.textContent = summary;
 
   if (quizRatingValueEl) {
-    quizRatingValueEl.textContent = `Rating ${rating.rating} • ${rating.bandLabel}`;
+    quizRatingValueEl.textContent = `Rating ${rating.rating} \u2022 ${rating.bandLabel}`;
   }
   if (quizScoreTextEl && typeof rating.score === "number") {
     quizScoreTextEl.textContent = `Composite score: ${rating.score.toFixed(1)} / 100`;
@@ -384,16 +447,19 @@ function updateRatingSection() {
     quizRatingGuidanceEl.textContent = rating.tips?.[0] || "";
   }
   if (quizResultEl) {
-    quizResultEl.hidden = false;
+    quizResultEl.hidden = !state.quiz.detailsOpen;
   }
   if (retakeQuizButton) {
-    retakeQuizButton.hidden = false;
+    retakeQuizButton.hidden = !state.quiz.detailsOpen;
     retakeQuizButton.disabled = false;
   }
   if (startQuizButton) {
-    startQuizButton.hidden = false;
+    startQuizButton.hidden = !state.quiz.detailsOpen;
     startQuizButton.disabled = false;
     startQuizButton.textContent = "Retake rating quiz";
+  }
+  if (quizContainer) {
+    quizContainer.hidden = true;
   }
 }
 
@@ -567,6 +633,7 @@ function handleQuizNext() {
 }
 
 async function startQuiz() {
+  setQuizDetailsOpen(true);
   try {
     await loadQuizQuestions();
   } catch (error) {
@@ -589,12 +656,14 @@ async function startQuiz() {
   }
 
   state.quiz = {
+    ...state.quiz,
     active: true,
     currentIndex: 0,
     answers: {},
     submitting: false,
     order,
-    total: order.length
+    total: order.length,
+    detailsOpen: true
   };
 
   if (startQuizButton) {
@@ -624,6 +693,19 @@ if (userMenuButton) {
   });
 }
 
+if (collapsedStartQuizButton) {
+  collapsedStartQuizButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    const hasRating = Boolean(state.user?.estimatedRating);
+    setQuizDetailsOpen(true);
+    if (!hasRating) {
+      startQuiz();
+    } else {
+      updateRatingSection();
+    }
+  });
+}
+
 if (startQuizButton) {
   startQuizButton.addEventListener("click", (event) => {
     event.preventDefault();
@@ -631,10 +713,17 @@ if (startQuizButton) {
   });
 }
 
+if (closeQuizDetailsButton) {
+  closeQuizDetailsButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    setQuizDetailsOpen(false);
+    updateRatingSection();
+  });
+}
+
 if (quizNextButton) {
   quizNextButton.addEventListener("click", handleQuizNext);
 }
-
 if (quizBackButton) {
   quizBackButton.addEventListener("click", (event) => {
     event.preventDefault();
@@ -733,6 +822,13 @@ async function refreshDashboard() {
     state.history = historyRes.history;
     state.leaderboard = leaderboardRes.leaderboard;
     state.quizQuestions = quizQuestionsRes.questions || [];
+    try {
+      const shotsRes = await request("/api/shots");
+      state.customShots = Array.isArray(shotsRes.customShots) ? shotsRes.customShots : [];
+    } catch (error) {
+      console.warn("Unable to load shot library data:", error);
+      state.customShots = [];
+    }
     renderDashboard();
   } catch (error) {
     questMessageEl.textContent = error.message;
@@ -770,54 +866,158 @@ function renderDashboard() {
 
 function renderQuests() {
   questListEl.innerHTML = "";
+  if (swapInfoEl) {
+    if (!state.daily) {
+      swapInfoEl.textContent = "";
+    } else {
+      const tokens = state.daily.swapsRemaining ?? 0;
+      swapInfoEl.textContent = tokens > 0
+        ? `Swap tokens left today: ${tokens}`
+        : "Swap tokens left today: 0 (refresh tomorrow).";
+    }
+  }
   questMessageEl.textContent = "";
   if (!state.daily || state.daily.quests.length === 0) {
     questMessageEl.textContent = "New quests unlock tomorrow after midnight.";
     return;
   }
 
+  const swapsRemaining = state.daily.swapsRemaining ?? 0;
+  const customShots = Array.isArray(state.customShots) ? state.customShots : [];
+
   state.daily.quests.forEach((quest) => {
     const li = document.createElement("li");
     li.className = `quest ${quest.completed ? "completed" : ""}`;
+    if (quest.isCustom) {
+      li.classList.add("quest-custom");
+    }
+    if (quest.customShotId) {
+      li.dataset.customShotId = quest.customShotId;
+    }
 
     const header = document.createElement("header");
     const title = document.createElement("h3");
     title.textContent = quest.title;
+    header.appendChild(title);
+
+    const badgeWrapper = document.createElement("div");
+    badgeWrapper.className = "quest-badges";
+
     const xpBadge = document.createElement("span");
     xpBadge.className = "tag";
     xpBadge.textContent = `${quest.xp} XP`;
-    header.appendChild(title);
-    header.appendChild(xpBadge);
+    badgeWrapper.appendChild(xpBadge);
+
+    if (quest.isCustom) {
+      const customBadge = document.createElement("span");
+      customBadge.className = "tag tag-custom";
+      customBadge.textContent = "Custom";
+      badgeWrapper.appendChild(customBadge);
+    }
+
+    header.appendChild(badgeWrapper);
     li.appendChild(header);
 
     const desc = document.createElement("p");
     desc.textContent = quest.description;
     li.appendChild(desc);
 
-    const tags = document.createElement("div");
-    tags.className = "quest-tags";
-    quest.tags?.forEach((tag) => {
-      const tagEl = document.createElement("span");
-      tagEl.className = "tag";
-      tagEl.textContent = tag;
-      tags.appendChild(tagEl);
-    });
-    li.appendChild(tags);
+    if (Array.isArray(quest.tags) && quest.tags.length > 0) {
+      const tags = document.createElement("div");
+      tags.className = "quest-tags";
+      quest.tags.forEach((tag) => {
+        const tagEl = document.createElement("span");
+        tagEl.className = "tag";
+        tagEl.textContent = tag;
+        tags.appendChild(tagEl);
+      });
+      li.appendChild(tags);
+    }
 
     const footer = document.createElement("footer");
     const info = document.createElement("span");
-    info.textContent = `${quest.durationMinutes} min | ${quest.focus}`;
+    const infoParts = [];
+    if (quest.durationMinutes) {
+      infoParts.push(`${quest.durationMinutes} min`);
+    }
+    if (quest.focus) {
+      infoParts.push(quest.focus);
+    }
+    info.textContent = infoParts.join(" | ") || "Custom session";
     footer.appendChild(info);
+
     if (!quest.completed) {
-      const button = document.createElement("button");
-      button.textContent = "Complete quest";
-      button.addEventListener("click", () => completeQuest(quest.id, button));
-      footer.appendChild(button);
+      const buttonGroup = document.createElement("div");
+      buttonGroup.className = "quest-buttons";
+
+      const completeButton = document.createElement("button");
+      completeButton.textContent = "Complete quest";
+      completeButton.addEventListener("click", () => completeQuest(quest.id, completeButton));
+      buttonGroup.appendChild(completeButton);
+
+      const swapButton = document.createElement("button");
+      swapButton.className = "secondary-button";
+      swapButton.textContent = swapsRemaining > 0 ? "Swap (random)" : "Swap (0 left)";
+      if (swapsRemaining > 0) {
+        swapButton.addEventListener("click", () => swapQuest(quest.id, swapButton));
+      } else {
+        swapButton.disabled = true;
+      }
+      buttonGroup.appendChild(swapButton);
+
+      if (swapsRemaining > 0 && customShots.length > 0) {
+        const customSwapControl = document.createElement("div");
+        customSwapControl.className = "custom-swap-control";
+
+        const customSelect = document.createElement("select");
+        customSelect.className = "custom-swap-select";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Choose custom shot";
+        customSelect.appendChild(placeholder);
+
+        customShots.forEach((shot) => {
+          const option = document.createElement("option");
+          option.value = shot.id;
+          option.textContent = shot.name;
+          customSelect.appendChild(option);
+        });
+
+        const customSwapButton = document.createElement("button");
+        customSwapButton.type = "button";
+        customSwapButton.className = "secondary-button custom-swap-button";
+        customSwapButton.textContent = "Use custom";
+        customSwapButton.disabled = true;
+
+        customSelect.addEventListener("change", () => {
+          customSwapButton.disabled = !customSelect.value;
+        });
+
+        customSwapButton.addEventListener("click", () => {
+          if (!customSelect.value) {
+            return;
+          }
+          customSwapButton.disabled = true;
+          customSelect.disabled = true;
+          swapQuest(quest.id, customSwapButton, customSelect.value).then((result) => {
+            if (!result) {
+              customSwapButton.disabled = false;
+              customSelect.disabled = false;
+            }
+          });
+        });
+
+        customSwapControl.append(customSelect, customSwapButton);
+        buttonGroup.appendChild(customSwapControl);
+      }
+
+      footer.appendChild(buttonGroup);
     } else {
       const done = document.createElement("span");
       done.textContent = "Completed";
       footer.appendChild(done);
     }
+
     li.appendChild(footer);
 
     questListEl.appendChild(li);
@@ -962,14 +1162,61 @@ if (logoutButton) {
       state.daily = null;
       state.history = [];
       state.leaderboard = [];
+      state.customShots = [];
       dashboardSection.hidden = true;
       authSection.hidden = false;
       if (userMenu) {
         userMenu.hidden = true;
       }
+      if (swapInfoEl) {
+        swapInfoEl.textContent = "";
+      }
       setAuthMode("login");
     }
   });
+}
+
+
+async function swapQuest(questId, button, customShotId) {
+  if (!state.daily) {
+    questMessageEl.textContent = "No daily quests available.";
+    return false;
+  }
+  if ((state.daily.swapsRemaining ?? 0) <= 0) {
+    questMessageEl.textContent = "No swaps remaining today.";
+    return false;
+  }
+
+  let success = false;
+  button.disabled = true;
+  try {
+    const endpoint = customShotId
+      ? `/api/quests/${questId}/swap/custom`
+      : `/api/quests/${questId}/swap`;
+    const options = customShotId
+      ? { method: "POST", body: { shotId: customShotId } }
+      : { method: "POST" };
+    const response = await request(endpoint, options);
+    state.daily = {
+      ...state.daily,
+      quests: response.quests,
+      swapsRemaining: response.swapsRemaining
+    };
+    renderQuests();
+    if (customShotId) {
+      const shot = state.customShots.find((item) => item.id === customShotId);
+      const shotName = shot?.name || "Custom shot";
+      questMessageEl.textContent = `${shotName} is locked in. Let's roll.`;
+    } else {
+      questMessageEl.textContent = "Quest swapped in. Time to groove the new drill.";
+    }
+    success = true;
+  } catch (error) {
+    questMessageEl.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+  return success;
 }
 
 async function showDashboard() {
@@ -979,6 +1226,7 @@ async function showDashboard() {
     userMenu.hidden = false;
   }
   closeUserMenu();
+  setShotLibraryLinkVisible(true);
   await refreshDashboard();
 }
 
@@ -1011,7 +1259,30 @@ showLoginLink.addEventListener("click", (event) => {
   setAuthMode("login");
 });
 
+if (
+  shotListEl &&
+  typeof window !== "undefined" &&
+  typeof window.renderShotLibraryList === "function"
+) {
+  window.renderShotLibraryList(shotListEl);
+}
+
 initialize();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

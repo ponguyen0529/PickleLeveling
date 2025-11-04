@@ -47,7 +47,7 @@ body {
   background: linear-gradient(160deg, var(--sage-50) 0%, var(--sage-200) 100%);
 }
 
-header {
+body > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -56,6 +56,32 @@ header {
   color: #f7fbf2;
   box-shadow: 0 2px 12px var(--accent-shadow);
   backdrop-filter: blur(6px);
+}
+
+.primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: clamp(1rem, 6vw, 2.5rem);
+}
+
+.primary-nav a {
+  color: #f7fbf2;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.primary-nav a:hover {
+  background: rgba(247, 251, 242, 0.18);
+}
+
+.primary-nav a[aria-current="page"] {
+  background: rgba(247, 251, 242, 0.28);
+  box-shadow: 0 0 0 1px rgba(247, 251, 242, 0.35) inset;
 }
 
 .brand h1 {
@@ -187,6 +213,17 @@ select {
   transition: max-height 0.2s ease, opacity 0.2s ease, color 0.2s ease;
 }
 
+.quest-buttons {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.quest-buttons button {
+  flex: 1;
+  min-width: 140px;
+}
+
 .field-feedback.warning,
 .field-feedback.error {
   max-height: 2.2rem;
@@ -247,6 +284,14 @@ button:hover {
 
 .message {
   min-height: 1.5rem;
+  color: var(--warning);
+}
+
+.message.success {
+  color: var(--sage-700);
+}
+
+.message.error {
   color: var(--warning);
 }
 
@@ -360,10 +405,42 @@ button:hover {
 
 .quest footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
   font-size: 0.9rem;
   color: var(--text-muted);
+}
+
+.quest-badges {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.tag-custom {
+  background: rgba(93, 122, 90, 0.28);
+  color: var(--sage-800);
+}
+
+.quest-custom {
+  border: 1px solid rgba(93, 122, 90, 0.35);
+}
+
+.custom-swap-control {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1 1 100%;
+  align-items: center;
+}
+
+.custom-swap-select {
+  flex: 1 1 auto;
+  min-width: 180px;
+}
+
+.custom-swap-button {
+  flex: 0 0 auto;
 }
 
 .quest button {
@@ -412,17 +489,6 @@ footer {
   color: var(--footer-text);
 }
 
-@media (max-width: 600px) {
-  header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-  .streaks {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
 .leaderboard li span:first-child {
   color: #2f412d;
   font-weight: 600;
@@ -568,6 +634,24 @@ footer {
   gap: 0.65rem;
 }
 
+.quiz-collapsed-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.quiz-detail-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.quiz-detail-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .quiz-option {
   width: 100%;
   text-align: left;
@@ -641,13 +725,229 @@ footer {
   font-size: 0.95rem;
   color: var(--text-muted);
 }
+
+
+.shot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.shot-item {
+  background: var(--surface-strong);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  box-shadow: inset 0 0 0 1px rgba(138, 164, 106, 0.2);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.shot-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.shot-item h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #2f412d;
+}
+
+.shot-focus {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--tag-bg);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.shot-badge {
+  font-size: 0.75rem;
+  background: rgba(138, 164, 106, 0.25);
+  color: var(--sage-800);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.shot-badge.custom {
+  background: rgba(93, 122, 90, 0.3);
+}
+
+.shot-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.shot-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.shot-tag {
+  font-size: 0.75rem;
+  background: rgba(138, 164, 106, 0.22);
+  color: var(--sage-800);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+}
+
+.shot-library-page main {
+  width: min(900px, 92vw);
+}
+
+.shot-library-card {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.shot-library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.shot-library-header-text {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.shot-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.shot-add-button {
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.shot-add-button.shot-add-button--open {
+  background: rgba(93, 122, 90, 0.25);
+  color: #233024;
+  box-shadow: inset 0 0 0 1px rgba(93, 122, 90, 0.35);
+}
+
+.shot-library-count {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.shot-library-list {
+  gap: 1rem;
+}
+
+.shot-form-container {
+  margin-top: 0.5rem;
+}
+
+.shot-form {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--surface-strong);
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(138, 164, 106, 0.2);
+}
+
+.shot-form-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.shot-form-grid label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.shot-form-grid label.full-width {
+  grid-column: 1 / -1;
+}
+
+.shot-form input,
+.shot-form textarea,
+.custom-swap-select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  background: #fff;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 2px rgba(53, 73, 47, 0.08);
+}
+
+.shot-form textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.shot-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.shot-collapsed-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  background: rgba(138, 164, 106, 0.18);
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(138, 164, 106, 0.25);
+}
+
+.shot-item {
+  position: relative;
+}
+
+.shot-item.loading,
+.shot-item.empty {
+  text-align: center;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.shot-item-custom {
+  border: 1px dashed rgba(138, 164, 106, 0.35);
+}
+
+.shot-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 @media (max-width: 768px) {
   main {
     width: min(640px, 96vw);
     margin: 1.5rem auto;
   }
-  header {
+  body > header {
     padding: 1.25rem clamp(0.75rem, 5vw, 1.75rem);
+  }
+  .primary-nav {
+    margin-left: clamp(0.5rem, 4vw, 1.5rem);
+    gap: 0.75rem;
+  }
+  .primary-nav a {
+    font-size: 0.95rem;
+    padding: 0.35rem 0.7rem;
   }
   .card {
     padding: 1.2rem;
@@ -659,6 +959,22 @@ footer {
     font-size: 0.95rem;
     padding: 0.65rem 0.9rem;
   }
+  .shot-library-header {
+    gap: 1rem;
+  }
+  .shot-add-button {
+    width: 100%;
+  }
+  .shot-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .custom-swap-control {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .custom-swap-button {
+    width: 100%;
+  }
   .quiz-container {
     padding: 0.95rem;
   }
@@ -668,11 +984,20 @@ footer {
 }
 
 @media (max-width: 600px) {
-  header {
+  body > header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
     padding: 1.1rem clamp(0.75rem, 6vw, 1.5rem);
   }
   .brand h1 {
     font-size: 1.8rem;
+  }
+  .primary-nav {
+    margin-left: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
   }
   main {
     width: 100%;
@@ -686,15 +1011,17 @@ footer {
   .auth-form button {
     width: 100%;
   }
+  .streaks {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .quest-buttons {
+    flex-direction: column;
+  }
   .quiz-actions {
     flex-direction: column;
   }
-  .quiz-actions button {
-    width: 100%;
-  }
-  .quiz-container {
-    padding: 0.85rem;
-  }
+  .quiz-actions button {\r\n    width: 100%;\r\n  }\r\n  .quiz-collapsed-cta {\r\n    flex-direction: column;\r\n    align-items: stretch;\r\n  }\r\n  .quiz-collapsed-cta button {\r\n    width: 100%;\r\n  }\r\n  .quiz-detail-header {\r\n    justify-content: stretch;\r\n  }\r\n  .quiz-detail-header .secondary-button {\r\n    width: 100%;\r\n  }\r\n  .quiz-container {\r\n    padding: 0.85rem;\r\n  }
   .quiz-result {
     padding: 0.85rem 0.95rem;
   }
@@ -732,5 +1059,7 @@ footer {
     font-size: 0.9rem;
   }
 }
+
+
 
 

@@ -4,22 +4,38 @@ const session = require("express-session");
 
 const userService = require("./services/userService");
 const quizService = require("./services/quizService");
+const shotLibraryDefaults = require("./shotLibraryDefaults");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "pickleball-quest-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    }
-  })
-);
+
+if (!process.env.SESSION_SECRET) {
+  console.warn(
+    "Warning: SESSION_SECRET is not set. Falling back to a default secret; set SESSION_SECRET in production."
+  );
+}
+
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || "pickleball-quest-secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    sameSite: process.env.COOKIE_SAMESITE || "lax",
+    secure: false
+  }
+};
+
+if (process.env.COOKIE_SECURE === "true") {
+  app.set("trust proxy", 1);
+  sessionConfig.cookie.secure = true;
+  sessionConfig.cookie.sameSite = "none";
+}
+
+app.use(session(sessionConfig));
 
 app.use((req, _res, next) => {
   req.userId = req.session.userId;
@@ -90,6 +106,32 @@ app.get("/api/quests/daily", requireAuth, async (req, res) => {
   }
 });
 
+app.post("/api/quests/:questId/swap", requireAuth, async (req, res) => {
+  try {
+    const result = await userService.swapDailyQuest(
+      req.session.userId,
+      req.params.questId
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post("/api/quests/:questId/swap/custom", requireAuth, async (req, res) => {
+  try {
+    const { shotId } = req.body;
+    const result = await userService.swapDailyQuestWithCustom(
+      req.session.userId,
+      req.params.questId,
+      shotId
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 app.post("/api/quests/:questId/complete", requireAuth, async (req, res) => {
   try {
     const result = await userService.completeQuest(
@@ -117,6 +159,27 @@ app.get("/api/community/leaderboard", async (_req, res) => {
     res.json({ leaderboard });
   } catch (error) {
     res.status(500).json({ error: "Failed to load leaderboard" });
+  }
+});
+
+app.get("/api/shots", requireAuth, async (req, res) => {
+  try {
+    const customShots = await userService.getCustomShots(req.session.userId);
+    res.json({
+      defaultShots: shotLibraryDefaults,
+      customShots
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post("/api/shots", requireAuth, async (req, res) => {
+  try {
+    const shot = await userService.addCustomShot(req.session.userId, req.body || {});
+    res.status(201).json({ shot });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -153,3 +216,4 @@ if (require.main === module) {
 }
 
 module.exports = app;
+

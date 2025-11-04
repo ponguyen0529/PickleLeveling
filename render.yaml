@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: pickleball-progress-lab
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATA_PATH
+        value: /var/data/db.json
+    disk:
+      name: app-data
+      mountPath: /var/data
+      sizeGB: 1

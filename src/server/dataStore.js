@@ -1,16 +1,22 @@
 const fs = require("fs");
 const path = require("path");
 
-const DATA_PATH = path.join(__dirname, "..", "..", "data", "db.json");
+const resolveDataPath = () => {
+  const envPath = process.env.DATA_PATH || process.env.DATA_FILE;
+  const target = envPath ? path.resolve(envPath) : path.join(__dirname, "..", "..", "data", "db.json");
+  return target;
+};
+
+let cachedPath = resolveDataPath();
 
 function ensureFile() {
-  const dir = path.dirname(DATA_PATH);
+  const dir = path.dirname(cachedPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-  if (!fs.existsSync(DATA_PATH)) {
+  if (!fs.existsSync(cachedPath)) {
     fs.writeFileSync(
-      DATA_PATH,
+      cachedPath,
       JSON.stringify(
         {
           users: []
@@ -23,15 +29,19 @@ function ensureFile() {
 }
 
 async function read() {
+  const current = resolveDataPath();
+  if (current !== cachedPath) {
+    cachedPath = current;
+  }
   ensureFile();
-  const raw = await fs.promises.readFile(DATA_PATH, "utf-8");
+  const raw = await fs.promises.readFile(cachedPath, "utf-8");
   return JSON.parse(raw);
 }
 
 async function write(data) {
   ensureFile();
   await fs.promises.writeFile(
-    DATA_PATH,
+    cachedPath,
     JSON.stringify(data, null, 2),
     "utf-8"
   );
